@@ -1,0 +1,17 @@
+{
+	"name": "backend",
+	"scripts": {
+		"dev": "bun run --hot src/index.ts",
+		"lint": "bun x eslint",
+		"lint:fix": "bun lint --fix",
+		"format": "bun prettier . --write"
+	},
+	"dependencies": {
+		"@repo/db": "workspace:*",
+		"@repo/node-eslint-config": "workspace:*",
+		"hono": "^4.9.8"
+	},
+	"devDependencies": {
+		"@types/bun": "latest"
+	}
+}

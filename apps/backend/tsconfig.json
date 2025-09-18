@@ -1,0 +1,23 @@
+{
+	"compilerOptions": {
+		"target": "ESNext",
+		"jsx": "react-jsx",
+		"jsxImportSource": "hono/jsx",
+		"lib": ["ESNext"],
+		"baseUrl": ".",
+		"module": "ESNext",
+		"moduleResolution": "Bundler",
+		"paths": {
+			"@/*": ["./src/*"]
+		},
+		"allowImportingTsExtensions": true,
+		"strict": true,
+		"noFallthroughCasesInSwitch": true,
+		"noUncheckedIndexedAccess": true,
+		"noEmit": true,
+		"esModuleInterop": true,
+		"forceConsistentCasingInFileNames": true,
+		"skipLibCheck": true
+	},
+	"include": ["src"]
+}
