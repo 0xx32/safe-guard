@@ -1,6 +1,7 @@
 import { relations } from 'drizzle-orm'
-import { integer, pgEnum, pgTable, text } from 'drizzle-orm/pg-core'
+import { integer, pgEnum, pgTable, text, timestamp } from 'drizzle-orm/pg-core'
 import { users } from './user'
+import { timestamps } from '../columns.helpers'
 
 export const paymentSystemsEnum = pgEnum('payment_system', ['lolz'])
 export const statusPaymentEnum = pgEnum('status_payment', ['paid', 'not_paid'])
@@ -17,6 +18,7 @@ export const payments = pgTable('payments_table', {
 	date: integer().notNull(),
 	status: statusPaymentEnum().default('not_paid'),
 	additionalData: text(),
+	...timestamps,
 })
 
 export const paymentsRelation = relations(payments, ({ one }) => ({
