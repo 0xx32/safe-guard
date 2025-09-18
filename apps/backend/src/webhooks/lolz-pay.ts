@@ -1,42 +1,52 @@
+import { payments } from '@repo/db/schemes'
 import { Hono } from 'hono'
 
-import { globalConfig } from '@/config'
+import type { Invoice } from '@/types/lolz-pay'
 
-export interface Invoice {
-	invoice_id: number
-	user_id: number
-	merchant_id: number
-	invoice_date: number
-	expires_at: number
-	amount: number
-	status: string
-	paid_date: number
-	payer_user_id: number
-	payment_id: string
-	additional_data: string
-	comment: string
-	url_success: string
-	url_callback: string
-	is_test: number
-	payer_username: string
-}
+import { config } from '@/config'
+import { db } from '@/db/client'
 
 export const lolzPay = new Hono()
 
 lolzPay.post('/webhook', async (c) => {
 	const secretKey = c.req.header('x-secret-key')
 
-	if (secretKey !== globalConfig.LOLZ_MERCHANT_ID) {
-		return c.text('Invalid secret key', 401)
+	if (secretKey !== config.LOLZ_MERCHANT_ID) {
+		return c.json(
+			{
+				success: false,
+				message: 'Invalid secret key',
+			},
+			401
+		)
 	}
 
-	// const invoice =  await c.req.json<Invoice>()
+	const invoice = await c.req.json<Invoice>()
 
-	// console.log(invoice);
-	console.log(await c.req.json())
+	const additionalData = JSON.parse(invoice.additional_data) as {
+		userId: number
+	}
 
-	return c.json({
-		success: true,
-		message: 'ok',
+	if (!additionalData.userId) {
+		return c.json(
+			{
+				success: false,
+				message: 'Invalid user id',
+			},
+			401
+		)
+	}
+
+	await db.insert(payments).values({
+		userId: additionalData.userId,
+		amount: invoice.amount,
+		comment: invoice.comment,
+		date: invoice.invoice_date,
+		paymentSystemId: invoice.payment_id,
+		status: 'paid',
+		system: 'lolz',
+		additionalData: invoice.additional_data,
 	})
-}) // GET /book
+
+	return c.status(200)
+})
