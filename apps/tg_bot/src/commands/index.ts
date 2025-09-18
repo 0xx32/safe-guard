@@ -61,12 +61,37 @@ export default (bot: BotType) => {
 		.command('test', async (ctx) => {
 			const lolzAPi = new LztPay()
 
-			const invoice = await lolzAPi.createInvoice({
+			const userOptions = {
+				paymentMethod: "lolz",
+				userId: 1,
+				amount: 1,
+				comment: "Test",
+			}
+
+			const paymentList = await db.insert(schemes.payments).values({
+				system: 'lolz',
+				userId: userOptions.userId,
+				amount: userOptions.amount,
+				status: "not_paid",
+				paymentSystemId: JSON.stringify({
+					userId: userOptions.userId
+				}),
+			}).returning()
+
+
+
+			const payment = paymentList.at(0)
+
+			if (!payment) {
+				return ctx.send('Ошибка создания платежа')
+			}
+
+			const invoiceResponse = await lolzAPi.createInvoice({
 				params: {
-					amount: 1,
+					amount: userOptions.amount,
 					currency: 'RUB',
-					payment_id: '44',
-					comment: 'Test',
+					payment_id: payment.id.toString(),
+					comment: userOptions.comment,
 					url_success: 'https://google.com',
 					url_callback: config.LOLZ_CALLBACK_URL,
 					merchant_id: +config.LOLZ_MERCHANT_ID,
@@ -74,8 +99,16 @@ export default (bot: BotType) => {
 				},
 			})
 
-			console.log(invoice.data)
+			if (!invoiceResponse.data) {
+				return ctx.send('Ошибка создания платежа в Лозз')
+			}
 
-			ctx.send(invoice.data)
+			const { invoice } = invoiceResponse.data
+
+			await db.update(schemes.payments).set({
+				paymentSystemId: invoice.invoice_id.toString()
+			}).where(eq(schemes.payments.id, +invoice.payment_id))
+
+
 		})
 }

@@ -1,9 +1,7 @@
 import { bot } from './bot.ts'
 
 const signals = ['SIGINT', 'SIGTERM']
-const dwadawd = () => {
-
-}
+const dwadawd = () => {}
 
 dwadawd()
 
