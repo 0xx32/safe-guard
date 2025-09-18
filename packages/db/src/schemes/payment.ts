@@ -15,7 +15,7 @@ export const payments = pgTable('payments_table', {
 		.references(() => users.id),
 	amount: integer().notNull(),
 	comment: text(),
-	date: integer().notNull(),
+	date: integer(),
 	status: statusPaymentEnum().default('not_paid'),
 	additionalData: text(),
 	...timestamps,
