@@ -1,0 +1,34 @@
+version: '3.8'
+
+services:
+  hono-app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: 'hono'
+    hostname: hono
+    ports:
+      - "3000:3000"
+    networks:
+      - hono-network
+    volumes:
+      - .:/app
+    environment:
+      NODE_ENV: production # or development
+networks:
+  hono-network:
+    name: hono-network
+    driver: bridge
+    external: false
+
+
+
+
+
+
+
+
+
+
+
+
