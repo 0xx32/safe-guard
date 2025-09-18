@@ -1,0 +1,18 @@
+services:
+  bot:
+    container_name: bot-vpn-bot
+    restart: unless-stopped
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      - NODE_ENV=production
+    env_file:
+      - path: ./.env
+        required: false
+      - path: ./.env.production
+        required: false
+volumes:
+
+networks:
+  default: {}
