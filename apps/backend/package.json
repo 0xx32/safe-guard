@@ -9,7 +9,10 @@
 	"dependencies": {
 		"@repo/db": "workspace:*",
 		"@repo/node-eslint-config": "workspace:*",
-		"hono": "^4.9.8"
+		"drizzle-orm": "^0.44.5",
+		"env-var": "^7.5.0",
+		"hono": "^4.9.8",
+		"postgres": "^3.4.7"
 	},
 	"devDependencies": {
 		"@types/bun": "latest"
