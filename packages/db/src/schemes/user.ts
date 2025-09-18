@@ -1,16 +1,18 @@
 import { relations } from 'drizzle-orm'
 import { integer, pgTable, text } from 'drizzle-orm/pg-core'
+import { payments } from './payment'
 
-const users = pgTable('users_table', {
+export const users = pgTable('users_table', {
 	id: integer().primaryKey().generatedAlwaysAsIdentity(),
 	uniqueID: text().unique(),
 	telegramID: text().notNull().unique(),
 	tgUserName: text(),
 	ballance: integer().default(0).notNull(),
 	lang: text().$type<'ru' | 'en'>().default('ru'),
+	test: integer().default(0).notNull(),
 })
 
-const subscriptions = pgTable('subscriptions_table', {
+export const subscriptions = pgTable('subscriptions_table', {
 	id: integer().primaryKey().generatedAlwaysAsIdentity(),
 	userId: integer()
 		.notNull()
@@ -19,11 +21,10 @@ const subscriptions = pgTable('subscriptions_table', {
 
 export type UserType = typeof users.$inferSelect
 
-export { subscriptions as subscriptionsTable, users as usersTable }
-
 //RELATIONS
 export const usersRelations = relations(users, ({ many }) => ({
 	subscriptions: many(subscriptions),
+	payments: many(payments),
 }))
 
 export const subscriptionsRelations = relations(subscriptions, ({ one }) => ({

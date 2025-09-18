@@ -5,7 +5,7 @@ import env from 'env-var'
 const DATABASE_URL = env.get('DATABASE_URL').required().asString()
 
 export default {
-	schema: './src/db/schemes',
+	schema: './src/schemes',
 	out: './drizzle',
 	dialect: 'postgresql',
 	casing: 'snake_case',
