@@ -19,9 +19,11 @@
 		"@verrou/core": "^0.5.1",
 		"axios": "^1.12.2",
 		"drizzle-orm": "^0.44.5",
+		"drizzle-zod": "^0.8.3",
 		"env-var": "^7.5.0",
 		"gramio": "^0.4.10",
-		"postgres": "^3.4.7"
+		"postgres": "^3.4.7",
+		"zod": "^4.1.9"
 	},
 	"devDependencies": {
 		"@0x32/prettier": "^1.0.0",

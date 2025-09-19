@@ -1,6 +1,6 @@
 import { Hono } from 'hono'
 
-import { lolzPay } from './webhooks/lolz-pay'
+import { lolzPay } from './features/webhooks/lolz-pay'
 
 const app = new Hono().basePath('/api')
 

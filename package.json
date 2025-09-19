@@ -27,6 +27,6 @@
 	},
 	"lint-staged": {
 		"*.{js,ts}": "bun lint --fix",
-		"*.{js,ts,json}": "bun prettier --write"
+		"*.{js,ts,json}": "bun prettier --write ."
 	}
 }

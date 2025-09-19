@@ -23,6 +23,7 @@
 		"postgres": "^3.4.7"
 	},
 	"exports": {
-		"./schemes": "./src/schemes/index.ts"
+		"./schemes": "./src/schemes/index.ts",
+		"./helpers": "./src/helpers/index.ts"
 	}
 }

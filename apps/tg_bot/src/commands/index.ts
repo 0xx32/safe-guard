@@ -29,36 +29,20 @@ export default (bot: BotType) => {
 				})
 			}
 		})
-		.command('addConfig', async (ctx) => {
-			await db.insert(schemes.configTable).values({
-				key: 'subscription',
-				values: {
-					periods: [
-						{
-							label: '1 месяц',
-							key: '1m',
-							price: 59,
-							enabled: true,
-						},
-						{
-							label: '2 месяца',
-							key: '2m',
-							price: 100,
-							enabled: true,
-						},
-						{
-							label: '3 месяца',
-							key: '3m',
-							price: 120,
-							enabled: true,
-						},
-					],
-				},
-			})
+		.command('updateConfig', async (ctx) => {
+			// await db.insert(schemes.config).values({
+			// 	name: 'main',
+			// 	values: {
+			// 		paymentMethods: [{
+			// 			name: 'Lolz Pay',
+			// 			key: 'lolz'
+			// 		}]
+			// 	},
+			// })
 
 			return ctx.send('Конфиг добавлен')
 		})
-		.command('test', async (ctx) => {
+		.command('pay', async (ctx) => {
 			const lolzAPi = new LztPay()
 
 			const userOptions = {
@@ -96,7 +80,7 @@ export default (bot: BotType) => {
 					url_success: 'https://google.com',
 					url_callback: config.LOLZ_CALLBACK_URL,
 					merchant_id: +config.LOLZ_MERCHANT_ID,
-					is_test: false,
+					is_test: true,
 				},
 			})
 
@@ -112,5 +96,7 @@ export default (bot: BotType) => {
 					paymentSystemId: invoice.invoice_id.toString(),
 				})
 				.where(eq(schemes.payments.id, +invoice.payment_id))
+
+			return ctx.send(invoice.url)
 		})
 }

@@ -7,9 +7,8 @@ export const users = pgTable('users_table', {
 	uniqueID: text().unique(),
 	telegramID: text().notNull().unique(),
 	tgUserName: text(),
-	ballance: integer().default(0).notNull(),
+	balance: integer().default(0).notNull(),
 	lang: text().$type<'ru' | 'en'>().default('ru'),
-	test: integer().default(0).notNull(),
 })
 
 export const subscriptions = pgTable('subscriptions_table', {

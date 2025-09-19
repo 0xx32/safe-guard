@@ -6,7 +6,6 @@ import { eq } from 'drizzle-orm'
 import { bold, format, InlineKeyboard } from 'gramio'
 
 import { db } from '@/db/client'
-import { getConfig } from '@/utils/helpers'
 
 interface BuySceneParams {
 	user: UserType
