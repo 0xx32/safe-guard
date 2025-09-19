@@ -62,23 +62,24 @@ export default (bot: BotType) => {
 			const lolzAPi = new LztPay()
 
 			const userOptions = {
-				paymentMethod: "lolz",
+				paymentMethod: 'lolz',
 				userId: 1,
 				amount: 1,
-				comment: "Test",
+				comment: 'Test',
 			}
 
-			const paymentList = await db.insert(schemes.payments).values({
-				system: 'lolz',
-				userId: userOptions.userId,
-				amount: userOptions.amount,
-				status: "not_paid",
-				paymentSystemId: JSON.stringify({
-					userId: userOptions.userId
-				}),
-			}).returning()
-
-
+			const paymentList = await db
+				.insert(schemes.payments)
+				.values({
+					system: 'lolz',
+					userId: userOptions.userId,
+					amount: userOptions.amount,
+					status: 'not_paid',
+					paymentSystemId: JSON.stringify({
+						userId: userOptions.userId,
+					}),
+				})
+				.returning()
 
 			const payment = paymentList.at(0)
 
@@ -105,10 +106,11 @@ export default (bot: BotType) => {
 
 			const { invoice } = invoiceResponse.data
 
-			await db.update(schemes.payments).set({
-				paymentSystemId: invoice.invoice_id.toString()
-			}).where(eq(schemes.payments.id, +invoice.payment_id))
-
-
+			await db
+				.update(schemes.payments)
+				.set({
+					paymentSystemId: invoice.invoice_id.toString(),
+				})
+				.where(eq(schemes.payments.id, +invoice.payment_id))
 		})
 }

@@ -5,7 +5,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: 'hono'
+    container_name: hono
     hostname: hono
     ports:
       - "3000:3000"

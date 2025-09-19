@@ -3,7 +3,6 @@
 	"type": "module",
 	"private": true,
 	"scripts": {
-		"build": "bun run ./build.ts",
 		"dev": "bun --watch src/index.ts",
 		"start": "bun x drizzle-kit migrate && NODE_ENV=production bun src/index.ts",
 		"lint": "bun x eslint",
