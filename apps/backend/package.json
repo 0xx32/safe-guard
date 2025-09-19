@@ -1,6 +1,7 @@
 {
 	"name": "backend",
 	"scripts": {
+		"build": "bun build.ts",
 		"dev": "bun run --hot src/index.ts",
 		"lint": "bun x eslint",
 		"lint:fix": "bun lint --fix",
