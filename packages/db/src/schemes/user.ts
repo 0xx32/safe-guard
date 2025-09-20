@@ -1,34 +1,26 @@
 import { relations } from 'drizzle-orm'
 import { integer, pgTable, text } from 'drizzle-orm/pg-core'
-import { payments } from './payment'
 
-export const users = pgTable('users_table', {
-	id: integer().primaryKey().generatedAlwaysAsIdentity(),
-	uniqueID: text().unique(),
-	telegramID: text().notNull().unique(),
-	tgUserName: text(),
+import { timestamps } from '../columns.helpers'
+import { generateUUID } from '../utils'
+import { paymentsTable } from './payment'
+import { subscriptionsTable } from './subsriptions'
+
+export const usersTable = pgTable('users_table', {
+	id: integer().primaryKey().generatedAlwaysAsIdentity().unique(),
+	uuid: text().unique().default(generateUUID()),
+	telegramId: text().notNull().unique(),
+	telegramUsername: text(),
+	firstName: text(),
+	lastName: text(),
 	balance: integer().default(0).notNull(),
 	lang: text().$type<'ru' | 'en'>().default('ru'),
+	...timestamps,
 })
 
-export const subscriptions = pgTable('subscriptions_table', {
-	id: integer().primaryKey().generatedAlwaysAsIdentity(),
-	userId: integer()
-		.notNull()
-		.references(() => users.id),
-})
-
-export type UserType = typeof users.$inferSelect
-
-//RELATIONS
-export const usersRelations = relations(users, ({ many }) => ({
-	subscriptions: many(subscriptions),
-	payments: many(payments),
+export const usersRelations = relations(usersTable, ({ many }) => ({
+	subscriptions: many(subscriptionsTable),
+	payments: many(paymentsTable),
 }))
 
-export const subscriptionsRelations = relations(subscriptions, ({ one }) => ({
-	user: one(users, {
-		fields: [subscriptions.userId],
-		references: [users.id],
-	}),
-}))
+export type User = typeof usersTable.$inferSelect
