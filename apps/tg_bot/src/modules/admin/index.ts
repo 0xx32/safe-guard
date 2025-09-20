@@ -1,0 +1,1 @@
+export { adminScenes } from './scenes'

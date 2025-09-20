@@ -6,13 +6,12 @@ import type { BotType } from '@/bot'
 
 import { db } from '@/db/client'
 
-import { profileCallbackData } from '../callback-data'
-import { profileKeyboard } from '../keyboards'
-import { topupBalanceScene } from '../scenes'
+import { profileKeyboard } from './keyboards'
+import { topupBalanceScene } from './scenes'
 
 export default (bot: BotType) => {
 	bot
-		.callbackQuery(profileCallbackData.profile, async (ctx) => {
+		.callbackQuery('profile', async (ctx) => {
 			ctx.answerCallbackQuery()
 
 			const user = (
@@ -29,13 +28,13 @@ export default (bot: BotType) => {
 			const uniqueID = user.uniqueID ?? 'не установлен'
 
 			await ctx.editText(
-				format`${bold`Профиль`}\n\nID: ${code`${uniqueID}`}\nБаланс: ${user.ballance} RUB`,
+				format`${bold`Профиль`}\n\nID: ${code`${uniqueID}`}\nБаланс: ${user.balance} RUB`,
 				{
 					reply_markup: profileKeyboard,
 				}
 			)
 		})
-		.callbackQuery(profileCallbackData.topupBalance, async (ctx) => {
+		.callbackQuery('topup-balance', async (ctx) => {
 			ctx.answerCallbackQuery()
 
 			ctx.scene.enter(topupBalanceScene)

@@ -5,7 +5,7 @@ import type { BotType } from '@/bot'
 
 import { db } from '@/db/client'
 
-import { buyScene } from '../scenes'
+import { buyScene } from './scenes'
 
 export default (bot: BotType) => {
 	bot.callbackQuery('buy', async (ctx) => {

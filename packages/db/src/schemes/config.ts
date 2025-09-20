@@ -1,13 +1,6 @@
 import { integer, json, pgTable, text } from 'drizzle-orm/pg-core'
 
-interface PaymentMethod {
-	name: string
-	key: string
-}
-
-interface Config {
-	paymentMethods: PaymentMethod[]
-}
+import type { Config } from '../types/config.interface'
 
 export const config = pgTable('config_table', {
 	id: integer().primaryKey().generatedAlwaysAsIdentity(),

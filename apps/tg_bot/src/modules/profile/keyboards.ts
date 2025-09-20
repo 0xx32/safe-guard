@@ -2,11 +2,9 @@ import { InlineKeyboard } from 'gramio'
 
 import { backKeyboard } from '@/shared/keyboards'
 
-import { profileCallbackData } from './callback-data'
-
 export const profileKeyboard = new InlineKeyboard()
-	.text('📱Мои подписки', profileCallbackData.mySubscriptions)
+	.text('📱Мои подписки', 'my-subscriptions')
 	.row()
-	.text('💸Пополнить баланс', profileCallbackData.topupBalance)
+	.text('💸Пополнить баланс', 'topup-balance')
 	.row()
 	.combine(backKeyboard)

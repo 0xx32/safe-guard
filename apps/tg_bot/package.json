@@ -8,7 +8,8 @@
 		"lint": "bun x eslint",
 		"lint:fix": "bun lint --fix",
 		"format": "bun prettier . --write",
-		"prepare": "husky"
+		"prepare": "husky",
+		"check-types": "bun x tsc --noEmit"
 	},
 	"dependencies": {
 		"@gramio/autoload": "^1.1.0",

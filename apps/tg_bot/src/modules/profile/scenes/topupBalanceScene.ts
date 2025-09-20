@@ -14,13 +14,20 @@ import { db } from '@/db/client'
 import { createInvoiceLolzPay } from '../helpers/createInvoice'
 
 export const topupBalanceScene = new Scene('topupBalanceScene')
-	.step(['message', 'callback_query'], (ctx) => {
+	.step(['message', 'callback_query'], async (ctx) => {
 		if (ctx.scene.step.firstTime) {
+			const config = await getConfig('main', db)
+
+			if (!config) return ctx.send('Не удалось получить конфигурацию')
+
 			return ctx.editText('Введите сумму или выберите готовую.', {
 				reply_markup: new InlineKeyboard()
-					.text('💵1 ₽', '1')
-					.text('💵2 ₽', '2')
-					.text('💵3 ₽', '3'),
+					.columns(2)
+					.add(
+						...config.subscriptions.map((x) =>
+							InlineKeyboard.text(`💵${x.price}`, x.price.toString())
+						)
+					),
 			})
 		}
 
