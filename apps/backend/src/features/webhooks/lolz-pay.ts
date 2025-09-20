@@ -1,4 +1,5 @@
-import { payments, users } from '@repo/db/schemes'
+import { getUserById } from '@repo/db/helpers'
+import { paymentsTable, usersTable } from '@repo/db/schemes'
 import { eq } from 'drizzle-orm'
 import { Hono } from 'hono'
 
@@ -41,24 +42,20 @@ lolzPay.post('/webhook', async (c) => {
 	}
 
 	await db
-		.update(payments)
+		.update(paymentsTable)
 		.set({
 			amount: invoice.amount,
 			comment: invoice.comment,
-			date: invoice.invoice_date,
-			paymentSystemId: invoice.invoice_id.toString(),
+			date: new Date(invoice.invoice_date),
+			externalId: invoice.invoice_id.toString(),
 			status: 'paid',
-			system: 'lolz',
-			updated_at: new Date(),
+			method: 'lolz',
+			updated_at: new Date(Date.now()),
 		})
-		.where(eq(payments.id, +invoice.payment_id))
+		.where(eq(paymentsTable.id, +invoice.payment_id))
 		.returning()
 
-	const usersBalance = await db
-		.select({ balance: users.balance })
-		.from(users)
-		.where(eq(users.id, userId))
-	const user = usersBalance.at(0)
+	const user = await getUserById(userId, db)
 
 	if (!user) {
 		return c.json(
@@ -70,7 +67,7 @@ lolzPay.post('/webhook', async (c) => {
 		)
 	}
 
-	await db.update(users).set({
+	await db.update(usersTable).set({
 		balance: user.balance + invoice.amount,
 	})
 
