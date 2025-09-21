@@ -1,5 +1,5 @@
 import { Scene } from '@gramio/scenes'
-import { config as configTable } from '@repo/db/schemes'
+import { configTable } from '@repo/db/schemes'
 import { eq } from 'drizzle-orm'
 import { format, InlineKeyboard, pre } from 'gramio'
 

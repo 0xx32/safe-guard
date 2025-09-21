@@ -1,15 +1,15 @@
-import type { UserType } from '@repo/db/schemes'
+import type { User } from '@repo/db/schemes'
 
 import { Scene } from '@gramio/scenes'
 import { getConfig } from '@repo/db/helpers'
-import * as schemes from '@repo/db/schemes'
+import { usersTable } from '@repo/db/schemes'
 import { eq } from 'drizzle-orm'
 import { bold, format, InlineKeyboard } from 'gramio'
 
 import { db } from '@/db/client'
 
 interface BuySceneParams {
-	user: UserType
+	user: User
 }
 
 interface Period {
@@ -128,11 +128,11 @@ export const buyScene = new Scene('buy')
 		await ctx.answerCallbackQuery()
 
 		await db
-			.update(schemes.users)
+			.update(usersTable)
 			.set({
 				balance: ctx.scene.params.user.balance - ctx.scene.state.period.price,
 			})
-			.where(eq(schemes.users.id, ctx.scene.params.user.id))
+			.where(eq(usersTable.id, ctx.scene.params.user.id))
 
 		await ctx.editText('Ваша подписка активирована')
 		return ctx.scene.exit()

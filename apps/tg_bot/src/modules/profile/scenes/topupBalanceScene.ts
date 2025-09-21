@@ -1,9 +1,9 @@
 import { Scene } from '@gramio/scenes'
 import { getConfig } from '@repo/db/helpers'
 import {
-	payments as paymentsTable,
+	paymentsTable,
 	paymentSystemsSchema,
-	users,
+	usersTable,
 } from '@repo/db/schemes'
 import { eq } from 'drizzle-orm'
 import { InlineKeyboard } from 'gramio'
@@ -92,9 +92,9 @@ export const topupBalanceScene = new Scene('topupBalanceScene')
 		}
 
 		const usersIds = await db
-			.select({ userId: users.id })
-			.from(users)
-			.where(eq(users.telegramID, ctx.from.id.toString()))
+			.select({ userId: usersTable.id })
+			.from(usersTable)
+			.where(eq(usersTable.telegramId, ctx.from.id.toString()))
 
 		const userId = usersIds.at(0)?.userId
 
@@ -106,7 +106,7 @@ export const topupBalanceScene = new Scene('topupBalanceScene')
 			.insert(paymentsTable)
 			.values({
 				userId,
-				system: paymentSystemsSchema.enum.lolz,
+				method: paymentSystemsSchema.enum.lolz,
 				amount: ctx.scene.state.amount,
 			})
 			.returning()

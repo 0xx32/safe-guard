@@ -1,4 +1,4 @@
-import * as schemes from '@repo/db/schemes'
+import { usersTable } from '@repo/db/schemes'
 import { eq } from 'drizzle-orm'
 
 import type { BotType } from '@/bot'
@@ -13,8 +13,8 @@ export default (bot: BotType) => {
 
 		const users = await db
 			.select()
-			.from(schemes.users)
-			.where(eq(schemes.users.telegramID, ctx.from.id.toString()))
+			.from(usersTable)
+			.where(eq(usersTable.telegramId, ctx.from.id.toString()))
 
 		const user = users.at(0)
 
