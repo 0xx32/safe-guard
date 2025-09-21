@@ -8,6 +8,7 @@
 		"lint": "bun x eslint",
 		"lint:fix": "bun lint --fix",
 		"format": "bun prettier . --write",
+		"pretty": "bun prettier . --write && bun x eslint --fix",
 		"prepare": "husky",
 		"check-types": "bun x tsc --noEmit"
 	},

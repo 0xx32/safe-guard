@@ -1,9 +1,17 @@
-export interface UserSession {
-	selectedSubscription?: {
-		locationId?: number
-		periodVariantId?: number
-		protocolId?: number
-	}
+interface SelectedSubscription {
+	locationId: number
+	periodVariantId: number
+	protocolId: number
 }
 
-export const initialUserSession = (): UserSession => ({})
+export interface UserSession {
+	selectedSubscription: SelectedSubscription
+}
+
+export const initialUserSession = (): UserSession => ({
+	selectedSubscription: {
+		locationId: 0,
+		periodVariantId: 0,
+		protocolId: 0,
+	},
+})

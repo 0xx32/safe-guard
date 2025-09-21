@@ -1,18 +1,25 @@
 import { autoload } from '@gramio/autoload'
 import { scenes } from '@gramio/scenes'
 import { session } from '@gramio/session'
+import { getConfig } from '@repo/db/helpers'
 import { Bot } from 'gramio'
 
 import { adminScenes } from '@/modules/admin'
-import { buyScene } from '@/modules/buy'
 import { profileScenes } from '@/modules/profile'
 
 import { config } from './config'
+import { db } from './db/client'
 import { storage } from './services/redis'
 import { initialUserSession } from './sessions'
 
-
 export const bot = new Bot(config.BOT_TOKEN)
+	.derive(['message', 'callback_query'], async () => {
+		const config = await getConfig('main', db)
+
+		if (!config) throw new Error('Config not found')
+
+		return { config }
+	})
 	.extend(
 		session({
 			key: 'session',
@@ -36,7 +43,7 @@ export const bot = new Bot(config.BOT_TOKEN)
 			skipImportErrors: true,
 		})
 	)
-	.extend(scenes([...profileScenes, buyScene, ...adminScenes]))
+	.extend(scenes([...profileScenes, ...adminScenes]))
 	.onStart(({ info }) => console.log(`✨ Bot ${info.username} was started!`))
 
 export type BotType = typeof bot

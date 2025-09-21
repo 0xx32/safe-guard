@@ -1,0 +1,49 @@
+{
+    "locations": [
+        {
+            "id": 1,
+            "symbol": "RU",
+            "name": "Россия",
+            "icon": "🇷🇺",
+            "supplementToPrice": 0
+        },
+        {
+            "id": 2,
+            "symbol": "NL",
+            "name": "Недерланды",
+            "icon": "🇳🇱",
+            "supplementToPrice": 0
+        },
+        {
+            "id": 3,
+            "symbol": "FR",
+            "name": "Франция",
+            "icon": "🇫🇷",
+            "supplementToPrice": 0
+        }
+    ],
+    "periods": {
+        "1": {
+            "title": "1 месяц",
+            "price": 100
+        },
+        "2": {
+            "title": "3 месяца",
+            "price": 300
+        },
+        "3": {
+            "title": "6 месяца",
+            "price": 600
+        },
+        "4": {
+            "title": "1 год",
+            "price": 1000
+        }
+    },
+    "protocols": {
+        "1": "VLESS",
+        "2": "VMESS",
+        "3": "TROJAN",
+        "4": "SHADOWSOCKS"
+    }
+}

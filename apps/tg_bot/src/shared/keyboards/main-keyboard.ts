@@ -1,7 +1,7 @@
 import { InlineKeyboard } from 'gramio'
 
 export const mainKeyboard = new InlineKeyboard()
-	.text('🔒Купить VPN', 'buy')
+	.text('🔒Купить VPN', 'buy_subscription')
 	.text('💵Профиль', 'profile')
 	.row()
 	.text('📔Правила использования', 'rules')

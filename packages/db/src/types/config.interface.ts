@@ -1,24 +1,26 @@
 export interface Config {
 	paymentMethods: PaymentMethod[]
-	subscriptions: SubscriptionVariant[]
 	locations: Location[]
+	periods: Periods
+	protocols: Record<number, string>
 }
-
-interface Location {
-	key: string
-	name: string
-	icon: string
-}
-
 export interface PaymentMethod {
 	name: string
 	key: string
 }
 
-export interface SubscriptionVariant {
-	price: number
-	duration: {
-		value: number
-		label: string
-	}
+export interface Location {
+	id: number
+	symbol: string
+	name: string
+	icon: string
+	supplementToPrice: number
 }
+
+type Periods = Record<
+	number,
+	{
+		title: string
+		price: number
+	}
+>

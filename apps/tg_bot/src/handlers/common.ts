@@ -11,12 +11,6 @@ export default (bot: BotType) => {
 			reply_markup: backKeyboard,
 		})
 	})
-	bot.callbackQuery(callbackData.back, (ctx) => {
-		ctx.answerCallbackQuery()
-		ctx.editText(START_MESSAGE, {
-			reply_markup: mainKeyboard,
-		})
-	})
 	bot.callbackQuery('main', (ctx) => {
 		ctx.answerCallbackQuery()
 		ctx.editText(START_MESSAGE, {
