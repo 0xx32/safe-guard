@@ -1,9 +1,6 @@
 import { bot } from './bot.ts'
 
 const signals = ['SIGINT', 'SIGTERM']
-const dwadawd = () => {}
-
-dwadawd()
 
 for (const signal of signals) {
 	process.on(signal, async () => {

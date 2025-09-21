@@ -5,10 +5,10 @@ import { getConfig } from '@repo/db/helpers'
 import { Bot } from 'gramio'
 
 import { adminScenes } from '@/modules/admin'
-import { profileScenes } from '@/modules/profile'
 
 import { config } from './config'
 import { db } from './db/client'
+import { topupBalanceScene } from './scenes'
 import { storage } from './services/redis'
 import { initialUserSession } from './sessions'
 
@@ -43,7 +43,13 @@ export const bot = new Bot(config.BOT_TOKEN)
 			skipImportErrors: true,
 		})
 	)
-	.extend(scenes([...profileScenes, ...adminScenes]))
-	.onStart(({ info }) => console.log(`✨ Bot ${info.username} was started!`))
+	.extend(scenes([...adminScenes, topupBalanceScene]))
+	.onStart(async ({ info }) => {
+		const config = await getConfig('main', db)
+
+		if (!config) throw new Error('Config not found')
+
+		console.log(`✨ Bot ${info.username} was started!`)
+	})
 
 export type BotType = typeof bot

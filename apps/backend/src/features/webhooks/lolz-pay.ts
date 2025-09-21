@@ -25,8 +25,6 @@ lolzPay.post('/webhook', async (c) => {
 
 	const invoice = await c.req.json<Invoice>()
 
-	console.log('@Invoice', invoice)
-
 	const { userId } = JSON.parse(invoice.additional_data) as {
 		userId: number
 	}
@@ -70,6 +68,10 @@ lolzPay.post('/webhook', async (c) => {
 	await db.update(usersTable).set({
 		balance: user.balance + invoice.amount,
 	})
+
+
+	console.log('@Платеж успешен', invoice)
+	
 
 	return c.json({ status: true, message: 'Платеж успешно оплачен' }, 200)
 })

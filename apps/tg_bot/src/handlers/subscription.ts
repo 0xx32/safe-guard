@@ -2,6 +2,7 @@ import { bold, CallbackData, format, InlineKeyboard, join } from 'gramio'
 
 import type { BotType } from '@/bot'
 
+import { topupBalanceData } from '@/shared/callbackData/profile'
 import {
 	getUserByTelegramId,
 	updateUserBalance,
@@ -127,7 +128,7 @@ export default (bot: BotType) => {
 					`❌ Недостаточно средств \n\nПополните баланс на ${amount} ₽ и попробуйте снова.`,
 					{
 						reply_markup: new InlineKeyboard()
-							.text('Пополнить счет', 'topup_balance')
+							.text('Пополнить счет', topupBalanceData.pack({ amount }))
 							.row()
 							.text('Вернуться в главное меню', 'main'),
 					}

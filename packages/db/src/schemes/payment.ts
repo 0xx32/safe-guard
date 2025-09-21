@@ -8,7 +8,7 @@ import { usersTable } from './user'
 export const paymentMethodEnum = pgEnum('payment_system', ['lolz'])
 export const paymentSystemsSchema = z.enum(paymentMethodEnum.enumValues)
 
-export const statusPaymentEnum = pgEnum('status_payment', ['paid', 'not_paid'])
+export const statusPaymentEnum = pgEnum('status_payment', ['paid', 'not_paid', 'canceled'])
 export const statusPaymentSchema = z.enum(statusPaymentEnum.enumValues)
 
 export const paymentsTable = pgTable('payments_table', {

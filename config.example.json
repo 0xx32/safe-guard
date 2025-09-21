@@ -45,5 +45,11 @@
         "2": "VMESS",
         "3": "TROJAN",
         "4": "SHADOWSOCKS"
-    }
+    },
+    "paymentMethods": [
+        {
+            "name": "Lolz Market",
+            "key": "lolz"
+        }
+    ]
 }

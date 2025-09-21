@@ -6,4 +6,4 @@ export const mainKeyboard = new InlineKeyboard()
 	.row()
 	.text('📔Правила использования', 'rules')
 
-export const backKeyboard = new InlineKeyboard().text('🔙Назад', 'back')
+export const backKeyboard = new InlineKeyboard().text('🔙Назад', 'main')
