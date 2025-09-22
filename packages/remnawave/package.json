@@ -1,22 +1,24 @@
 {
-	"name": "@repo/backend",
+	"name": "@repo/remnawave",
+	"type": "module",
+	"private": true,
+	"exports": {
+		".": "./src/index.ts",
+		"./types": "./src/types/*.ts"
+	},
+	"module": "index.ts",
 	"scripts": {
-		"build": "bun build.ts",
-		"dev": "bun run --hot src/index.ts",
+		"dev": "bun run index.ts",
 		"lint": "eslint",
 		"format": "prettier --write .",
 		"check-types": "tsc --noEmit"
 	},
-	"dependencies": {
-		"@repo/db": "workspace:*",
-		"@repo/eslint-config": "workspace:*",
-		"drizzle-orm": "^0.44.5",
-		"env-var": "^7.5.0",
-		"hono": "^4.9.8",
-		"postgres": "^3.4.7"
+	"peerDependencies": {
+		"typescript": "^5"
 	},
 	"devDependencies": {
 		"@0x32/prettier": "^1.0.0",
+		"@repo/eslint-config": "workspace:*",
 		"@types/bun": "latest",
 		"eslint": "^9.36.0",
 		"prettier": "^3.6.2"

@@ -4,5 +4,4 @@ import { prettier } from '@0x32/prettier'
 
 export default {
 	...prettier.default,
-	printWidth: 80,
 }

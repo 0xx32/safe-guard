@@ -4,8 +4,6 @@ import { session } from '@gramio/session'
 import { getConfig } from '@repo/db/helpers'
 import { Bot } from 'gramio'
 
-import { adminScenes } from '@/modules/admin'
-
 import { config } from './config'
 import { db } from './db/client'
 import { topupBalanceScene } from './scenes'
@@ -43,12 +41,13 @@ export const bot = new Bot(config.BOT_TOKEN)
 			skipImportErrors: true,
 		})
 	)
-	.extend(scenes([...adminScenes, topupBalanceScene]))
+	.extend(scenes([topupBalanceScene]))
 	.onStart(async ({ info }) => {
 		const config = await getConfig('main', db)
 
 		if (!config) throw new Error('Config not found')
 
+		// eslint-disable-next-line
 		console.log(`✨ Bot ${info.username} was started!`)
 	})
 

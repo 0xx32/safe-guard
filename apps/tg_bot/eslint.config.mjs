@@ -1,7 +1,7 @@
-import nodeConfig from '@repo/node-eslint-config'
+import { nodeEslintConfig } from '@repo/eslint-config'
 import drizzle from 'eslint-plugin-drizzle'
 
-export default nodeConfig.append({
+export default nodeEslintConfig.append({
 	plugins: {
 		drizzle,
 	},

@@ -3,21 +3,12 @@ import { bold, CallbackData, format, InlineKeyboard, join } from 'gramio'
 import type { BotType } from '@/bot'
 
 import { topupBalanceData } from '@/shared/callbackData/profile'
-import {
-	getUserByTelegramId,
-	updateUserBalance,
-} from '@/utils/helpers/databaseQueries'
+import { getUserByTelegramId, updateUserBalance } from '@/utils/helpers/databaseQueries'
 
 const selectingPeriodData = new CallbackData('selecting_period').number('id')
-const selectingLocationData = new CallbackData('selecting_location').number(
-	'id'
-)
-const selectingProtocolData = new CallbackData('selecting_protocol').number(
-	'id'
-)
-const subscriptionPaymentData = new CallbackData('subscription_payment').number(
-	'amount'
-)
+const selectingLocationData = new CallbackData('selecting_location').number('id')
+const selectingProtocolData = new CallbackData('selecting_protocol').number('id')
+const subscriptionPaymentData = new CallbackData('subscription_payment').number('amount')
 
 export default (bot: BotType) => {
 	bot
@@ -69,26 +60,18 @@ export default (bot: BotType) => {
 		.callbackQuery(selectingProtocolData, async (ctx) => {
 			ctx.session.selectedSubscription.protocolId = ctx.queryData.id
 
-			const { locationId, periodVariantId, protocolId } =
-				ctx.session.selectedSubscription
+			const { locationId, periodVariantId, protocolId } = ctx.session.selectedSubscription
 
 			if (!locationId || !periodVariantId || !protocolId) {
 				return ctx.editText('Ошибка в оформении заказа', {
-					reply_markup: new InlineKeyboard().text(
-						'Вернуться в главное меню',
-						'main'
-					),
+					reply_markup: new InlineKeyboard().text('Вернуться в главное меню', 'main'),
 				})
 			}
 
 			const config = ctx.config
 
-			const selectedLocation = config.locations.find(
-				(location) => location.id === locationId
-			)
-			const amount =
-				config.periods[periodVariantId]!.price +
-				selectedLocation!.supplementToPrice
+			const selectedLocation = config.locations.find((location) => location.id === locationId)
+			const amount = config.periods[periodVariantId]!.price + selectedLocation!.supplementToPrice
 
 			const data = [
 				`📅 Период: ${config.periods[periodVariantId]!.title}`,
@@ -122,7 +105,6 @@ export default (bot: BotType) => {
 				})
 			}
 
-			//TODO добавить пополнение баланса
 			if (user.balance < amount) {
 				return ctx.editText(
 					`❌ Недостаточно средств \n\nПополните баланс на ${amount} ₽ и попробуйте снова.`,
@@ -139,10 +121,7 @@ export default (bot: BotType) => {
 
 			if (updateUser && updateUser.userBalance === user.balance - amount) {
 				return ctx.editText('Оплата успешно произведена', {
-					reply_markup: new InlineKeyboard().text(
-						'Мои подписки',
-						'my_subscriptions'
-					),
+					reply_markup: new InlineKeyboard().text('Мои подписки', 'my_subscriptions'),
 				})
 			} else {
 				return ctx.editText('Ошибка при оплате', {

@@ -6,6 +6,11 @@ interface SelectedSubscription {
 
 export interface UserSession {
 	selectedSubscription: SelectedSubscription
+	// order : {
+	// 	locationId: number
+	// 	periodVariantId: number
+	// 	protocolId: number
+	// }
 }
 
 export const initialUserSession = (): UserSession => ({

@@ -3,6 +3,8 @@ async function build() {
 		entrypoints: ['src/index.ts'],
 		target: 'bun',
 		outdir: 'dist',
+
+		//eslint-disable-next-line
 	}).then(console.log)
 }
 

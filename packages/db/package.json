@@ -12,10 +12,9 @@
 		"push": "bun x drizzle-kit push",
 		"migrate": "bun x drizzle-kit migrate",
 		"studio": "bun x drizzle-kit studio",
-		"format": "bun prettier . --write",
-		"lint": "bun x eslint",
-		"lint:fix": "bun lint --fix",
-		"check-types": "bun x tsc --noEmit"
+		"lint": "eslint",
+		"format": "prettier --write .",
+		"check-types": "tsc --noEmit"
 	},
 	"peerDependencies": {
 		"typescript": "^5"
@@ -26,7 +25,15 @@
 		"postgres": "^3.4.7"
 	},
 	"devDependencies": {
+		"@0x32/prettier": "^1.0.0",
+		"@repo/eslint-config": "workspace:*",
 		"@types/bun": "latest",
-		"drizzle-kit": "^0.31.4"
+		"drizzle-kit": "^0.31.4",
+		"eslint": "^9.36.0",
+		"prettier": "^3.6.2"
+	},
+	"lint-staged": {
+		"*.{js,ts,json}": "prettier --write",
+		"*.{js,ts}": "eslint --fix"
 	}
 }

@@ -10,9 +10,7 @@ export const sybscriptionStatusEnum = pgEnum('subscription_status', [
 	'disabled',
 	'expired',
 ])
-export const sybscriptionStatusSchema = z.enum(
-	sybscriptionStatusEnum.enumValues
-)
+export const sybscriptionStatusSchema = z.enum(sybscriptionStatusEnum.enumValues)
 
 export const subscriptionsTable = pgTable('subscriptions_table', {
 	id: integer().primaryKey().generatedAlwaysAsIdentity(),
@@ -28,13 +26,10 @@ export const subscriptionsTable = pgTable('subscriptions_table', {
 	...timestamps,
 })
 
-export const subscriptionsRelations = relations(
-	subscriptionsTable,
-	({ one }) => ({
-		user: one(usersTable, {
-			fields: [subscriptionsTable.userId],
-			references: [usersTable.id],
-		}),
-	})
-)
+export const subscriptionsRelations = relations(subscriptionsTable, ({ one }) => ({
+	user: one(usersTable, {
+		fields: [subscriptionsTable.userId],
+		references: [usersTable.id],
+	}),
+}))
 export type Subscription = typeof subscriptionsTable.$inferSelect

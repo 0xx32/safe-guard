@@ -1,16 +1,13 @@
 {
-	"name": "bot",
+	"name": "@repo/bot",
 	"type": "module",
 	"private": true,
 	"scripts": {
 		"dev": "bun --watch src/index.ts",
 		"start": "bun x drizzle-kit migrate && NODE_ENV=production bun src/index.ts",
-		"lint": "bun x eslint",
-		"lint:fix": "bun lint --fix",
-		"format": "bun prettier . --write",
-		"pretty": "bun prettier . --write && bun x eslint --fix",
-		"prepare": "husky",
-		"check-types": "bun x tsc --noEmit"
+		"lint": "eslint",
+		"format": "prettier --write .",
+		"check-types": "tsc --noEmit"
 	},
 	"dependencies": {
 		"@gramio/autoload": "^1.1.0",
@@ -19,7 +16,8 @@
 		"@gramio/storage-redis": "^1.0.4",
 		"@libsql/client": "^0.15.15",
 		"@repo/db": "workspace:*",
-		"@repo/node-eslint-config": "workspace:*",
+		"@repo/eslint-config": "workspace:*",
+		"@repo/remnawave": "workspace:*",
 		"@verrou/core": "^0.5.1",
 		"axios": "^1.12.2",
 		"drizzle-orm": "^0.44.5",
@@ -31,19 +29,15 @@
 	},
 	"devDependencies": {
 		"@0x32/prettier": "^1.0.0",
-		"@antfu/eslint-config": "^5.2.2",
 		"@types/bun": "^1.2.21",
 		"esbuild-plugin-autoload": "^0.3.3",
 		"eslint": "^9.35.0",
 		"eslint-plugin-drizzle": "^0.2.3",
-		"eslint-plugin-perfectionist": "^4.15.0",
-		"husky": "^9.1.7",
-		"lint-staged": "^16.1.6",
 		"prettier": "^3.6.2",
 		"typescript": "^5.9.2"
 	},
 	"lint-staged": {
-		"*.{js,ts}": "bun lint --fix",
-		"*.{js,ts,json}": "bun prettier --write"
+		"*.{js,ts,json}": "prettier --write",
+		"*.{js,ts}": "eslint --fix"
 	}
 }

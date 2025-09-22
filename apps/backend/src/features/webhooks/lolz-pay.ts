@@ -69,9 +69,5 @@ lolzPay.post('/webhook', async (c) => {
 		balance: user.balance + invoice.amount,
 	})
 
-
-	console.log('@Платеж успешен', invoice)
-	
-
 	return c.json({ status: true, message: 'Платеж успешно оплачен' }, 200)
 })

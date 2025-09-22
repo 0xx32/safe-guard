@@ -19,8 +19,7 @@ export const topupBalanceScene = new Scene('topupBalanceScene')
 			return ctx.scene.exit()
 		}
 
-		if (ctx.scene.params?.amount)
-			return ctx.scene.update({ amount: ctx.scene.params.amount })
+		if (ctx.scene.params?.amount) return ctx.scene.update({ amount: ctx.scene.params.amount })
 
 		if (ctx.scene.step.firstTime) {
 			return ctx.editText('Введите сумму или выберите готовую.', {
@@ -54,10 +53,7 @@ export const topupBalanceScene = new Scene('topupBalanceScene')
 
 		if (!config?.paymentMethods) {
 			await ctx.send('Методы оплаты не найдены', {
-				reply_markup: new InlineKeyboard().text(
-					'Вернуться в главное меню',
-					'main'
-				),
+				reply_markup: new InlineKeyboard().text('Вернуться в главное меню', 'main'),
 			})
 			return ctx.scene.exit()
 		}
@@ -67,10 +63,7 @@ export const topupBalanceScene = new Scene('topupBalanceScene')
 		return ctx.editText('Выберите способ оплаты', {
 			reply_markup: new InlineKeyboard().add(
 				...Object.values(config.paymentMethods).map((x) =>
-					InlineKeyboard.text(
-						x.name,
-						topupBalanceLolzData.pack({ amount: ctx.scene.state.amount })
-					)
+					InlineKeyboard.text(x.name, topupBalanceLolzData.pack({ amount: ctx.scene.state.amount }))
 				)
 			),
 		})

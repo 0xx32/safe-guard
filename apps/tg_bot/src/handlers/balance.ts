@@ -11,9 +11,7 @@ import { LztPay } from '@/services/lolz-pay'
 import { backKeyboard } from '@/shared/keyboards'
 import { getUserByTelegramId } from '@/utils/helpers/databaseQueries'
 
-export const topupBalanceLolzData = new CallbackData(
-	'topup_balance:lolz'
-).number('amount')
+export const topupBalanceLolzData = new CallbackData('topup_balance:lolz').number('amount')
 const checkPaymentData = new CallbackData('check_payment').number('paymentId')
 const paymentCancelData = new CallbackData('payment_cancel').number('paymentId')
 
@@ -75,8 +73,6 @@ export default async (bot: BotType) => {
 					},
 				})
 
-				console.log(invoiceResponse.data.invoice)
-
 				if (!invoiceResponse) {
 					return ctx.editText('Ошибка создания платежа', {
 						reply_markup: backKeyboard,
@@ -92,17 +88,11 @@ export default async (bot: BotType) => {
 				await ctx.editText(format`${join(text, (x) => bold`${x}`, '\n')}`, {
 					reply_markup: new InlineKeyboard()
 						.url('Оплатить', invoiceResponse.data.invoice.url)
-						.text(
-							'Проверить',
-							checkPaymentData.pack({ paymentId: newPayment.id })
-						)
+						.text('Проверить', checkPaymentData.pack({ paymentId: newPayment.id }))
 						.row()
 						.url('Поддержка', 'https://t.me/safeguard_ru')
 						.row()
-						.text(
-							'Отмена',
-							paymentCancelData.pack({ paymentId: newPayment.id })
-						),
+						.text('Отмена', paymentCancelData.pack({ paymentId: newPayment.id })),
 				})
 			} catch (error) {
 				console.error(error)
@@ -131,7 +121,7 @@ export default async (bot: BotType) => {
 
 			await ctx.answerCallbackQuery('Оплачен')
 
-			return ctx.editText('Оплата успешно произведена', {
+			return ctx.editText(`Баланс успешно пополнен на ${payment.amount} ₽`, {
 				reply_markup: backKeyboard,
 			})
 		})
@@ -146,12 +136,9 @@ export default async (bot: BotType) => {
 			}
 
 			if (payment.status === 'paid') {
-				return ctx.editText(
-					'Вы не можете отменить оплату, которая уже оплачена',
-					{
-						reply_markup: backKeyboard,
-					}
-				)
+				return ctx.editText('Вы не можете отменить оплату, которая уже оплачена', {
+					reply_markup: backKeyboard,
+				})
 			}
 
 			await db

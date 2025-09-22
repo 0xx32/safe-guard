@@ -1,22 +1,19 @@
 import antfu from '@antfu/eslint-config'
 import perfectionist from 'eslint-plugin-perfectionist'
 
-export default antfu(
+export const nodeEslintConfig = antfu(
 	{
 		stylistic: false,
 	},
 	{
-		files: ['**/*.js', '**/*.ts'],
 		rules: {
-			'node/prefer-global/process': 'off',
-			'no-console': 'off',
-			'antfu/no-top-level-await': 'off',
-		},
-		plugins: {
-			perfectionist,
+			'eslint-comments/no-unlimited-disable': 'off',
 		},
 	},
 	{
+		plugins: {
+			perfectionist,
+		},
 		rules: {
 			'perfectionist/sort-imports': [
 				'error',

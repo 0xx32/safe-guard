@@ -36,10 +36,6 @@ export class LztPay {
 			searchParams.append(key, value)
 		}
 
-		return this.api.post<ResponseCreateInvoice>(
-			`invoice?${searchParams.toString()}`,
-			{},
-			config
-		)
+		return this.api.post<ResponseCreateInvoice>(`invoice?${searchParams.toString()}`, {}, config)
 	}
 }
