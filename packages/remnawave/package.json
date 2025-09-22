@@ -22,9 +22,5 @@
 		"@types/bun": "latest",
 		"eslint": "^9.36.0",
 		"prettier": "^3.6.2"
-	},
-	"lint-staged": {
-		"*.{js,ts,json}": "prettier --write",
-		"*.{js,ts}": "eslint --fix"
 	}
 }

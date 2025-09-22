@@ -17,8 +17,5 @@
 		"@0x32/prettier": "^1.0.0",
 		"@antfu/eslint-config": "^5.4.1",
 		"prettier": "^3.6.2"
-	},
-	"lint-staged": {
-		"*.{js,ts}": "prettier --write"
 	}
 }

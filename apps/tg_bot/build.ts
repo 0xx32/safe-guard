@@ -7,15 +7,9 @@ async function build() {
 		outdir: 'dist',
 		plugins: [
 			autoload({
-
-
-
 				directory: './src/commands',
 			}),
 			autoload({
-
-
-				
 				directory: './src/handlers',
 			}),
 			autoload({
