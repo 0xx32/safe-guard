@@ -2,7 +2,7 @@ import type { AxiosInstance, CreateAxiosDefaults } from 'axios'
 
 import axios from 'axios'
 
-import type { MyRequestConfig } from '@/utils/types'
+import type { MyRequestConfig } from '@/utils/types/utils'
 
 import { config as globalConfig } from '@/config'
 

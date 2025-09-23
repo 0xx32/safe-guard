@@ -17,25 +17,25 @@ interface CallerConfig {
 
 type CallResponse<ResponseData> =
 	| {
-		status: 'success';
-		data: ResponseData;
-		error: undefined;
-		query?: RequestSearchParams;
-		params?: unknown;
-		url: string;
-		headers: Headers;
-		statusCode: number;
-	}
+			status: 'success'
+			data: ResponseData
+			error: undefined
+			query?: RequestSearchParams
+			params?: unknown
+			url: string
+			headers: Headers
+			statusCode: number
+	  }
 	| {
-		status: 'error';
-		data: undefined;
-		error: RemnawaveError;
-		query?: RequestSearchParams;
-		params?: unknown;
-		url: string;
-		headers: Headers;
-		statusCode: number;
-	};
+			status: 'error'
+			data: undefined
+			error: RemnawaveError
+			query?: RequestSearchParams
+			params?: unknown
+			url: string
+			headers: Headers
+			statusCode: number
+	  }
 
 export class Caller {
 	private readonly config: CallerConfig

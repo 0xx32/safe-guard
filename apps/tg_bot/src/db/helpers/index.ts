@@ -1,3 +1,3 @@
 export * from './config'
-export * from './payments'
+export * from './payment'
 export * from './user'

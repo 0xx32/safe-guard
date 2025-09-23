@@ -1,8 +1,10 @@
 import { redisStorage } from '@gramio/storage-redis'
 
+import { config } from '@/config'
+
 export const storage = redisStorage({
-	host: 'redis-15578.c300.eu-central-1-1.ec2.redns.redis-cloud.com',
-	port: 15578,
-	password: 'sBv7MQBgEe13DyQLw5M0MNXY0zjiQiEU',
-	username: 'default',
+	host: config.REDIS_HOST,
+	port: config.REDIS_PORT,
+	password: config.REDIS_PASSWORD,
+	username: config.REDIS_USERNAME,
 })

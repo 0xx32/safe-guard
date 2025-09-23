@@ -1,7 +1,7 @@
 import type { BotType } from '@/bot'
 
 import { topupBalanceScene } from '@/scenes'
-import { topupBalanceData } from '@/shared/callbackData/profile'
+import { topupBalanceData } from '@/shared/callbackData'
 
 export default (bot: BotType) => {
 	bot.callbackQuery(topupBalanceData, async (ctx) => {

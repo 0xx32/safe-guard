@@ -29,6 +29,7 @@
     "apps/tg_bot": {
       "name": "@repo/bot",
       "dependencies": {
+        "@formkit/tempo": "^0.1.2",
         "@gramio/autoload": "^1.1.0",
         "@gramio/scenes": "^0.3.4",
         "@gramio/session": "^0.1.6",
@@ -202,6 +203,8 @@
     "@eslint/object-schema": ["@eslint/object-schema@2.1.6", "", {}, "sha512-RBMg5FRL0I0gs51M/guSAj5/e14VQ4tpZnQNWwuDT66P14I43ItmPfIZRhO9fUVIPOAQXU47atlywZ/czoqFPA=="],
 
     "@eslint/plugin-kit": ["@eslint/plugin-kit@0.3.5", "", { "dependencies": { "@eslint/core": "^0.15.2", "levn": "^0.4.1" } }, "sha512-Z5kJ+wU3oA7MMIqVR9tyZRtjYPr4OC004Q4Rw7pgOKUOKkJfZ3O24nz3WYfGRpMDNmcOi3TwQOmgm7B7Tpii0w=="],
+
+    "@formkit/tempo": ["@formkit/tempo@0.1.2", "", {}, "sha512-jNPPbjL8oj7hK3eHX++CwbR6X4GKQt+x00/q4yeXkwynXHGKL27dylYhpEgwrmediPP4y7s0XtN1if/M/JYujg=="],
 
     "@gramio/autoload": ["@gramio/autoload@1.1.0", "", { "dependencies": { "@types/picomatch": "^3.0.1", "fdir": "^6.2.0", "picomatch": "^4.0.2" }, "peerDependencies": { "gramio": ">=0.0.39 < 1.0.0" } }, "sha512-dFSaoik8evLMfJqHhtFzAN6qbsCV5QdA0edZwRizqF4d74RGWGhoIUIx60POr3qxBco6rn6I3QpqzsNb+2qNiA=="],
 

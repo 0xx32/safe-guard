@@ -4,7 +4,7 @@ import { eq } from 'drizzle-orm'
 import { db } from '@/db/client'
 
 export const getUserByTelegramId = async (id: number) =>
-	(await db.select().from(usersTable).where(eq(usersTable.telegramId, id.toString()))).at(0)
+	(await db.select().from(usersTable).where(eq(usersTable.telegramId, id))).at(0)
 
 export const getAllUsers = async () => db.select().from(usersTable)
 

@@ -1,8 +1,8 @@
 export interface Config {
 	paymentMethods: PaymentMethod[]
-	locations: Location[]
-	periods: Periods
+	locations: Record<number, Location>
 	protocols: Record<number, string>
+	periods: Periods
 }
 export interface PaymentMethod {
 	name: string

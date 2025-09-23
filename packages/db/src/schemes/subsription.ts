@@ -17,15 +17,15 @@ export const subscriptionsTable = pgTable('subscriptions_table', {
 	id: integer().primaryKey().generatedAlwaysAsIdentity(),
 	userId: integer()
 		.notNull()
-		.unique()
 		.references(() => usersTable.id),
+	locationId: integer().notNull(),
+	protocolId: integer().notNull(),
 	status: sybscriptionStatusEnum().default('disabled'),
 	startDate: timestamp().defaultNow().notNull(),
 	endDate: timestamp().notNull(),
 	subUrl: text(),
 	remnawaveUuid: text(),
 	remnawaveShortId: text(),
-
 	...timestamps,
 })
 

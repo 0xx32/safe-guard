@@ -4,18 +4,19 @@ import { session } from '@gramio/session'
 import { Bot } from 'gramio'
 
 import { config } from './config'
-import { getConfig } from './db/helpers'
+import { createDefaultConfig, getConfig, getUserByTelegramId } from './db/helpers'
 import { topupBalanceScene } from './scenes'
 import { storage } from './services/redis'
-import { initialUserSession } from './sessions'
+import { initialUserSession } from './utils/sessions'
 
 export const bot = new Bot(config.BOT_TOKEN)
-	.derive(['message', 'callback_query'], async () => {
+	.derive(['message', 'callback_query'], async (ctx) => {
 		const config = await getConfig('main')
+		const user = await getUserByTelegramId(ctx.from.id)
 
 		if (!config) throw new Error('Config not found')
 
-		return { config }
+		return { config, user, login: () => ctx.send('Авторизоваться') }
 	})
 	.extend(
 		session({
@@ -44,7 +45,9 @@ export const bot = new Bot(config.BOT_TOKEN)
 	.onStart(async ({ info }) => {
 		const config = await getConfig('main')
 
-		if (!config) throw new Error('Config not found')
+		if (!config) {
+			await createDefaultConfig('main')
+		}
 
 		// eslint-disable-next-line
 		console.log(`✨ Bot ${info.username} was started!`)

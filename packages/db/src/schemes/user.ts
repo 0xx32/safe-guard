@@ -1,15 +1,15 @@
 import { relations } from 'drizzle-orm'
-import { integer, pgTable, text } from 'drizzle-orm/pg-core'
+import { bigint, integer, pgTable, text } from 'drizzle-orm/pg-core'
 
 import { timestamps } from '../columns.helpers'
 import { generateUUID } from '../utils'
 import { paymentsTable } from './payment'
-import { subscriptionsTable } from './subsriptions'
+import { subscriptionsTable } from './subsription'
 
 export const usersTable = pgTable('users_table', {
 	id: integer().primaryKey().generatedAlwaysAsIdentity(),
 	uuid: text().unique().default(generateUUID()),
-	telegramId: text().notNull().unique(),
+	telegramId: bigint({ mode: 'number' }).notNull().unique(),
 	telegramUsername: text(),
 	firstName: text(),
 	lastName: text(),
