@@ -15,7 +15,7 @@ export interface CreateUserParams {
 	description?: string
 	tag?: string
 	telegramId?: number
-	email: string
+	email?: string
 	hwidDeviceLimit?: number
 	activeInternalSquads?: string[]
 }

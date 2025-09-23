@@ -49,14 +49,10 @@ export class Remnawave {
 		return this.caller.call<UserTypes.ResponseUsers>('users', 'GET')
 	}
 	createUser(user: UserTypes.CreateUserParams) {
-		return this.caller.call<UserTypes.ResponseUser>('users', 'POST', {
-			body: user,
-		})
+		return this.caller.call<UserTypes.ResponseUser>('users', 'POST', user)
 	}
 	updateUser(user: UserTypes.UpdateUserParams) {
-		return this.caller.call<UserTypes.ResponseUser>('users', 'PATCH', {
-			body: user,
-		})
+		return this.caller.call<UserTypes.ResponseUser>('users', 'PATCH', user)
 	}
 	deleteUser(uuid: UserTypes.UserUUID) {
 		return this.caller.call<UserTypes.ResponseUser>(`users/${uuid}`, 'DELETE')

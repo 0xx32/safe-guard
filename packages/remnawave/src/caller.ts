@@ -1,4 +1,4 @@
-import type { BaseResponse } from './types/common'
+import type { BaseResponse, RemnawaveError } from './types/common'
 
 type RequestMethod = 'DELETE' | 'GET' | 'HEAD' | 'PATCH' | 'POST' | 'PUT'
 interface RequestSearchParams {
@@ -15,18 +15,27 @@ interface CallerConfig {
 	defaultHeaders?: Record<string, string>
 }
 
-interface CallResponse<ResponseData> {
-	data: ResponseData
-	query?: RequestSearchParams
-	params?: unknown
-	url: string
-	headers: Headers
-	status: number
-}
-
-const STATUS_CODES = {
-	SERVER_ERROR: 500,
-}
+type CallResponse<ResponseData> =
+	| {
+		status: 'success';
+		data: ResponseData;
+		error: undefined;
+		query?: RequestSearchParams;
+		params?: unknown;
+		url: string;
+		headers: Headers;
+		statusCode: number;
+	}
+	| {
+		status: 'error';
+		data: undefined;
+		error: RemnawaveError;
+		query?: RequestSearchParams;
+		params?: unknown;
+		url: string;
+		headers: Headers;
+		statusCode: number;
+	};
 
 export class Caller {
 	private readonly config: CallerConfig
@@ -35,14 +44,12 @@ export class Caller {
 		this.config = options
 	}
 
-	// Перегрузка для GET: третий аргумент — search
 	async call<ResponseData>(
 		endpoint: string,
 		method: 'GET' | 'HEAD' | 'DELETE' | 'POST',
 		options?: CallerBaseOptions
 	): Promise<CallResponse<ResponseData>>
 
-	// Перегрузка для POST/PATCH: третий аргумент — body, четвёртый — search
 	async call<ResponseData, Body = unknown>(
 		endpoint: string,
 		method: 'POST' | 'PATCH' | 'PUT',
@@ -73,39 +80,50 @@ export class Caller {
 
 		const url = this.buildUrl(endpoint, searchParams)
 
-		const response = await fetch(url, {
-			method,
-			headers: {
-				...this.config.defaultHeaders,
-				...(headers ?? {}),
-			},
-			body: body && JSON.stringify(body),
-		})
-
-		if (response.status === STATUS_CODES.SERVER_ERROR) {
-			throw new Error(`Server error: ${response.status}: ${response.statusText}`)
-		}
-
-		if (!response.ok) {
-			throw new Error(`Request failed with status ${response.status}: ${response.statusText}`)
-		}
-
 		try {
-			const data = (await response.json()) as BaseResponse<ResponseData>
+			const response = await fetch(url, {
+				method,
+				headers: {
+					...this.config.defaultHeaders,
+					...(headers ?? {}),
+				},
+				body: body && JSON.stringify(body),
+			})
 
-			return {
-				data: data.response,
+			const json = await response.json()
+
+			const returningData = {
 				query: searchParams,
 				params: body,
 				url: response.url,
 				headers: response.headers,
-				status: response.status,
+				statusCode: response.status,
+			}
+
+			if (!response.ok) {
+				return {
+					...returningData,
+					status: 'error',
+					data: undefined,
+					error: json as RemnawaveError,
+				}
+			}
+
+			return {
+				...returningData,
+				status: 'success',
+				data: (json as BaseResponse<ResponseData>).response,
+				error: undefined,
 			}
 		} catch (error) {
-			if (error instanceof TypeError) {
-				throw new Error(`Failed to parse response JSON: ${error.message}`)
+			if (error instanceof SyntaxError) {
+				throw new Error(`Error parsing response data`)
 			}
-			throw error
+
+			if (error instanceof Error) {
+				throw new Error(error.message)
+			}
+			throw new Error('Error')
 		}
 	}
 
