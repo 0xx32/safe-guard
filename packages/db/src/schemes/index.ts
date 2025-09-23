@@ -1,4 +1,5 @@
 export * from './config'
 export * from './payment'
+export * from './squads'
 export * from './subsriptions'
 export * from './user'

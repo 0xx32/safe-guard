@@ -7,7 +7,7 @@ import { paymentsTable } from './payment'
 import { subscriptionsTable } from './subsriptions'
 
 export const usersTable = pgTable('users_table', {
-	id: integer().primaryKey().generatedAlwaysAsIdentity().unique(),
+	id: integer().primaryKey().generatedAlwaysAsIdentity(),
 	uuid: text().unique().default(generateUUID()),
 	telegramId: text().notNull().unique(),
 	telegramUsername: text(),
