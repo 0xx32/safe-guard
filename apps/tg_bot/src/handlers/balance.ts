@@ -1,4 +1,3 @@
-import { getPaymentById } from '@repo/db/helpers'
 import { paymentsTable } from '@repo/db/schemes'
 import { eq } from 'drizzle-orm'
 import { bold, CallbackData, code, format, InlineKeyboard, join } from 'gramio'
@@ -7,9 +6,10 @@ import type { BotType } from '@/bot'
 
 import { config } from '@/config'
 import { db } from '@/db/client'
+import { getPaymentById } from '@/db/helpers'
+import { getUserByTelegramId } from '@/db/helpers/user'
 import { LztPay } from '@/services/lolz-pay'
 import { backKeyboard } from '@/shared/keyboards'
-import { getUserByTelegramId } from '@/utils/helpers/databaseQueries'
 
 export const topupBalanceLolzData = new CallbackData('topup_balance:lolz').number('amount')
 const checkPaymentData = new CallbackData('check_payment').number('paymentId')
@@ -126,7 +126,7 @@ export default async (bot: BotType) => {
 			})
 		})
 		.callbackQuery(paymentCancelData, async (ctx) => {
-			const payment = await getPaymentById(ctx.queryData.paymentId, db)
+			const payment = await getPaymentById(ctx.queryData.paymentId)
 
 			if (!payment) {
 				await ctx.answerCallbackQuery('Платеж не найден')

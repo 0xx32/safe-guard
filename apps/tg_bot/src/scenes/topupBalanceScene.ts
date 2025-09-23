@@ -1,8 +1,7 @@
 import { Scene } from '@gramio/scenes'
-import { getConfig } from '@repo/db/helpers'
 import { InlineKeyboard } from 'gramio'
 
-import { db } from '@/db/client'
+import { getConfig } from '@/db/helpers'
 import { topupBalanceLolzData } from '@/handlers/balance'
 
 interface TopupBalanceSceneParams {
@@ -12,7 +11,7 @@ interface TopupBalanceSceneParams {
 export const topupBalanceScene = new Scene('topupBalanceScene')
 	.params<TopupBalanceSceneParams>()
 	.step(['message', 'callback_query'], async (ctx) => {
-		const config = await getConfig('main', db)
+		const config = await getConfig('main')
 
 		if (!config) {
 			await ctx.send('Не удалось получить конфигурацию')
@@ -49,7 +48,7 @@ export const topupBalanceScene = new Scene('topupBalanceScene')
 		})
 	})
 	.step(['message', 'callback_query'], async (ctx) => {
-		const config = await getConfig('main', db)
+		const config = await getConfig('main')
 
 		if (!config?.paymentMethods) {
 			await ctx.send('Методы оплаты не найдены', {

@@ -3,8 +3,8 @@
 	"type": "module",
 	"private": true,
 	"exports": {
-		"./schemes": "./src/schemes/index.ts",
-		"./helpers": "./src/helpers/index.ts"
+		".": "./src/index.ts",
+		"./schemes": "./src/schemes/index.ts"
 	},
 	"module": "index.ts",
 	"scripts": {

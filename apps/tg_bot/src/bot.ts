@@ -1,18 +1,17 @@
 import { autoload } from '@gramio/autoload'
 import { scenes } from '@gramio/scenes'
 import { session } from '@gramio/session'
-import { getConfig } from '@repo/db/helpers'
 import { Bot } from 'gramio'
 
 import { config } from './config'
-import { db } from './db/client'
+import { getConfig } from './db/helpers'
 import { topupBalanceScene } from './scenes'
 import { storage } from './services/redis'
 import { initialUserSession } from './sessions'
 
 export const bot = new Bot(config.BOT_TOKEN)
 	.derive(['message', 'callback_query'], async () => {
-		const config = await getConfig('main', db)
+		const config = await getConfig('main')
 
 		if (!config) throw new Error('Config not found')
 
@@ -43,7 +42,7 @@ export const bot = new Bot(config.BOT_TOKEN)
 	)
 	.extend(scenes([topupBalanceScene]))
 	.onStart(async ({ info }) => {
-		const config = await getConfig('main', db)
+		const config = await getConfig('main')
 
 		if (!config) throw new Error('Config not found')
 

@@ -3,9 +3,9 @@ import { usersTable } from '@repo/db/schemes'
 import type { BotType } from '@/bot'
 
 import { db } from '@/db/client'
+import { getUserByTelegramId } from '@/db/helpers/user'
 import { mainKeyboard } from '@/shared/keyboards'
 import { START_MESSAGE } from '@/utils/constants/messages'
-import { getUserByTelegramId } from '@/utils/helpers/databaseQueries'
 
 export default (bot: BotType) => {
 	bot.command('start', async (ctx) => {

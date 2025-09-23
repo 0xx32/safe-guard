@@ -2,8 +2,8 @@ import { bold, code, format } from 'gramio'
 
 import type { BotType } from '@/bot'
 
+import { getUserByTelegramId } from '@/db/helpers/user'
 import { topupBalanceScene } from '@/scenes'
-import { getUserByTelegramId } from '@/utils/helpers/databaseQueries'
 
 import { profileKeyboard } from './keyboards'
 

@@ -2,8 +2,8 @@ import { bold, CallbackData, format, InlineKeyboard, join } from 'gramio'
 
 import type { BotType } from '@/bot'
 
+import { getUserByTelegramId, updateUserBalance } from '@/db/helpers/user'
 import { topupBalanceData } from '@/shared/callbackData/profile'
-import { getUserByTelegramId, updateUserBalance } from '@/utils/helpers/databaseQueries'
 
 const selectingPeriodData = new CallbackData('selecting_period').number('id')
 const selectingLocationData = new CallbackData('selecting_location').number('id')
@@ -119,16 +119,16 @@ export default (bot: BotType) => {
 
 			const updateUser = await updateUserBalance(user.id, user.balance - amount)
 
-			if (updateUser && updateUser.userBalance === user.balance - amount) {
-				return ctx.editText('Оплата успешно произведена', {
-					reply_markup: new InlineKeyboard().text('Мои подписки', 'my_subscriptions'),
-				})
-			} else {
+			if (!updateUser?.userBalance || updateUser.userBalance < user.balance - amount) {
 				return ctx.editText('Ошибка при оплате', {
 					reply_markup: new InlineKeyboard()
 						.text('Вернуться в главное меню', 'main')
 						.url('Поддержка', 'https://t.me/safeguard_ru'),
 				})
 			}
+
+			return ctx.editText('Оплата успешно произведена', {
+				reply_markup: new InlineKeyboard().text('Мои подписки', 'my_subscriptions'),
+			})
 		})
 }
