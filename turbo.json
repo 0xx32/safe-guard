@@ -10,5 +10,9 @@
 			"cache": false,
 			"persistent": true
 		}
-	}
+	},
+	"globalDependencies": [
+		"packages/db/src/**/*.ts",
+		"packages/remnawave/src/**/*.ts"
+	]
 }

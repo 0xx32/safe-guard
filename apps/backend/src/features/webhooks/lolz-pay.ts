@@ -1,4 +1,3 @@
-import { getUserById } from '@repo/db/helpers'
 import { paymentsTable, usersTable } from '@repo/db/schemes'
 import { eq } from 'drizzle-orm'
 import { Hono } from 'hono'
@@ -7,6 +6,7 @@ import type { Invoice } from '@/types/lolz-pay'
 
 import { config } from '@/config'
 import { db } from '@/db/client'
+import { getUserById } from '@/db/helpers/user'
 
 export const lolzPay = new Hono()
 
@@ -53,7 +53,7 @@ lolzPay.post('/webhook', async (c) => {
 		.where(eq(paymentsTable.id, +invoice.payment_id))
 		.returning()
 
-	const user = await getUserById(userId, db)
+	const user = await getUserById(userId)
 
 	if (!user) {
 		return c.json(

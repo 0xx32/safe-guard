@@ -21,7 +21,7 @@ export const bot = new Bot(config.BOT_TOKEN)
 	.extend(
 		session({
 			key: 'session',
-			initial: initialUserSession,
+			initial: () => initialUserSession(),
 			storage,
 		})
 	)
@@ -33,12 +33,6 @@ export const bot = new Bot(config.BOT_TOKEN)
 	.extend(
 		autoload({
 			path: './handlers',
-		})
-	)
-	.extend(
-		autoload({
-			path: './modules',
-			skipImportErrors: true,
 		})
 	)
 	.extend(scenes([topupBalanceScene]))

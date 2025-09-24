@@ -6,7 +6,7 @@
 		".": "./src/index.ts",
 		"./schemes": "./src/schemes/index.ts"
 	},
-	"module": "index.ts",
+	"main": "./src/index.ts",
 	"scripts": {
 		"generate": "bun x drizzle-kit generate",
 		"push": "bun x drizzle-kit push",

@@ -26,17 +26,20 @@ export default (bot: BotType) => {
 			}
 
 			await ctx.editText('Ваши подписки', {
-				reply_markup: new InlineKeyboard().add(
-					...subscriptions.map((x) => {
-						const location = ctx.config.locations[x.locationId]
-						const protocol = ctx.config.protocols[x.protocolId]
+				reply_markup: new InlineKeyboard()
+					.columns(1)
+					.add(
+						...subscriptions.map((x) => {
+							const location = ctx.config.locations[x.locationId]
+							const protocol = ctx.config.protocols[x.protocolId]
 
-						return {
-							text: `${location?.name} / ${protocol}`,
-							callback_data: subscriptionShowData.pack({ id: x.id }),
-						}
-					})
-				),
+							return {
+								text: `${location?.name} / ${protocol}`,
+								callback_data: subscriptionShowData.pack({ id: x.id }),
+							}
+						})
+					)
+					.text('Назад', 'profile'),
 			})
 		})
 		.callbackQuery(subscriptionShowData, async (ctx) => {
