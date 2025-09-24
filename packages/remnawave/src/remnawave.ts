@@ -1,3 +1,4 @@
+import type * as InternalSquadsTypes from './types/internalSquads'
 import type * as UserTypes from './types/user'
 
 import { Caller } from './caller'
@@ -6,7 +7,7 @@ export class Remnawave {
 	private readonly baseUrl: string
 	private readonly apiKey: string
 
-	readonly caller: Caller
+	private readonly caller: Caller
 
 	constructor(url: string, apiKey: string) {
 		this.baseUrl = url
@@ -21,6 +22,7 @@ export class Remnawave {
 		})
 	}
 
+	// USERS
 	getUserBy(searchField: UserTypes.GetUserByKeys = 'uuid', searchValue: string) {
 		let path = 'users'
 
@@ -70,5 +72,16 @@ export class Remnawave {
 	}
 	resetUserTraffic(uuid: UserTypes.UserUUID) {
 		return this.caller.call<UserTypes.ResponseUser>(`users/${uuid}/actions/reset-traffic`, 'POST')
+	}
+
+	//INTERNAL SQUADS
+	getAllInternalSquads() {
+		return this.caller.call<InternalSquadsTypes.GetAllInternalSquadsResponse>(
+			'internal-squads',
+			'GET'
+		)
+	}
+	getInternalSquadByUUID(uuid: InternalSquadsTypes.InternalSquad['uuid']) {
+		return this.caller.call<InternalSquadsTypes.InternalSquad>(`internal-squads/${uuid}`, 'GET')
 	}
 }

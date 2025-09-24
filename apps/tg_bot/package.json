@@ -16,6 +16,8 @@
 		"@gramio/session": "^0.1.6",
 		"@gramio/storage-redis": "^1.0.4",
 		"@libsql/client": "^0.15.15",
+		"@logtape/logtape": "^1.1.1",
+		"@logtape/pretty": "^1.1.1",
 		"@repo/db": "workspace:*",
 		"@repo/eslint-config": "workspace:*",
 		"@repo/remnawave": "workspace:*",

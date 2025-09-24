@@ -17,5 +17,5 @@ export const updateUserBalance = async (userId: number, updateBalance: number) =
 			.update(usersTable)
 			.set({ balance: updateBalance })
 			.where(eq(usersTable.id, userId))
-			.returning({ userBalance: usersTable.balance })
+			.returning({ balance: usersTable.balance })
 	).at(0)

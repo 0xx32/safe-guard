@@ -1,19 +1,20 @@
-import { addMonth } from '@formkit/tempo'
-import { subscriptionsTable } from '@repo/db/schemes'
+import { format as formatDate } from '@formkit/tempo'
+import { internalSquadsTable } from '@repo/db/schemes'
+import { eq } from 'drizzle-orm'
 import { bold, CallbackData, format, InlineKeyboard, join } from 'gramio'
 
 import type { BotType } from '@/bot'
 
 import { db } from '@/db/client'
-import { getUserByTelegramId, updateUserBalance } from '@/db/helpers/user'
-import { remnawave } from '@/services/remnawave'
-import { topupBalanceData } from '@/shared/callbackData'
-import { generateRandomString } from '@/utils/helpers/string'
+import { updateUserBalance } from '@/db/helpers/user'
+import { subscriptionsService } from '@/services/subscriptions'
+import { subscriptionMessage } from '@/shared/messages/subscription'
 
 const selectingPeriodData = new CallbackData('selecting_period').number('id')
 const selectingLocationData = new CallbackData('selecting_location').number('id')
 const selectingProtocolData = new CallbackData('selecting_protocol').number('id')
 const subscriptionPaymentData = new CallbackData('subscription_payment').number('amount')
+const orderConfirmationData = new CallbackData('order_confirmation').number('orderAmount')
 
 export default (bot: BotType) => {
 	bot
@@ -23,7 +24,7 @@ export default (bot: BotType) => {
 					.combine(
 						new InlineKeyboard().columns(2).add(
 							...Object.values(ctx.config.locations).map((location) => ({
-								text: `${location.icon} ${location.name} + (${location.supplementToPrice} ₽)`,
+								text: `${location.icon} ${location.name} ${location.supplementToPrice === 0 ? '' : `+  (${location.supplementToPrice} ₽)`}`,
 								callback_data: selectingLocationData.pack({ id: location.id }),
 							}))
 						)
@@ -89,76 +90,72 @@ export default (bot: BotType) => {
 				format`📋 ${bold`Сводка заказа`}\n\n ${join(data, (x) => bold`${x}`, '\n')}`,
 				{
 					reply_markup: new InlineKeyboard()
-						.text(
-							'✅ Подтвердить',
-							subscriptionPaymentData.pack({
-								amount,
-							})
-						)
+						.text('✅ Подтвердить', orderConfirmationData.pack({ orderAmount: amount }))
 						.text('❌ Отменить', 'main'),
 				}
 			)
 			await ctx.answerCallbackQuery()
 		})
-		.callbackQuery(subscriptionPaymentData, async (ctx) => {
-			const user = await getUserByTelegramId(ctx.from.id)
-			const amount = ctx.queryData.amount
 
-			if (!user) {
-				return ctx.editText('Вы не авторизованы', {
-					reply_markup: new InlineKeyboard().text('Авторизоваться', 'auth'),
+		.callbackQuery(orderConfirmationData, async (ctx) => {
+			if (ctx.user?.balance < ctx.queryData.orderAmount) {
+				return ctx.editCaption(`На вашем балансе недостаточно средств`, {
+					reply_markup: new InlineKeyboard()
+						.text(
+							'Перейти к оплате',
+							subscriptionPaymentData.pack({ amount: ctx.queryData.orderAmount })
+						)
+						.text('Вернуться в главное меню', 'main'),
 				})
 			}
 
-			if (user.balance < amount) {
-				return ctx.editText(
-					`❌ Недостаточно средств \n\nПополните баланс на ${amount} ₽ и попробуйте снова.`,
-					{
-						reply_markup: new InlineKeyboard()
-							.text('Пополнить счет', topupBalanceData.pack({ amount }))
-							.row()
-							.text('Вернуться в главное меню', 'main'),
-					}
-				)
-			}
+			const afterBalance = ctx.user.balance - ctx.queryData.orderAmount
 
-			const updateUser = await updateUserBalance(user.id, user.balance - amount)
+			const updateUser = await updateUserBalance(ctx.user.id, afterBalance)
 
-			if (!updateUser?.userBalance || updateUser.userBalance < user.balance - amount) {
-				return ctx.editText('Ошибка при оплате', {
+			if (updateUser && updateUser.balance !== afterBalance) {
+				return ctx.editText('Ошибка при оплате, обратитесь в поддержку', {
 					reply_markup: new InlineKeyboard()
 						.text('Вернуться в главное меню', 'main')
 						.url('Поддержка', 'https://t.me/safeguard_ru'),
 				})
 			}
-
 			await ctx.answerCallbackQuery('Оплата успешно произведена')
 
-			const lastEndDate = addMonth(new Date(), 1)
+			//TODO: Отрефакторить и добавить логирование
+			const internalSquads = await db
+				.select({ id: internalSquadsTable.uuid })
+				.from(internalSquadsTable)
+				.where(
+					eq(
+						internalSquadsTable.locationCode,
+						ctx.config.locations[ctx.session.cart.locationId]!.code
+					)
+				)
 
-			const remnawaveResponse = await remnawave.createUser({
-				username: user.telegramUsername ?? generateRandomString(),
-				expireAt: lastEndDate,
-			})
+			const internalSquadsIds = internalSquads.map((squad) => squad.id)
 
-			if (remnawaveResponse.status === 'error') {
-				return ctx.editText('Ошибка при создании подписки\n\n Обратитесь в поддержку!!!', {
-					reply_markup: new InlineKeyboard()
-						.text('Вернуться в главное меню', 'main')
-						.url('Поддержка', 'https://t.me/safeguard_ru'),
-				})
-			}
-
-			await db.insert(subscriptionsTable).values({
-				userId: user.id,
-				status: 'active',
-				startDate: new Date(remnawaveResponse.data.createdAt),
-				endDate: lastEndDate,
-				subUrl: remnawaveResponse.data.subscriptionUrl,
-				remnawaveShortId: remnawaveResponse.data.shortUuid,
-				remnawaveUuid: remnawaveResponse.data.uuid,
+			//TODO: Добавить логирование
+			const newSubscription = await subscriptionsService.createSubscription({
 				locationId: ctx.session.cart.locationId,
 				protocolId: ctx.session.cart.protocolId,
+				userId: ctx.user.id,
+				telegramId: ctx.from.id,
+				username: ctx.user.telegramUsername,
+				internalSquadsIds,
+			})
+
+			const message = subscriptionMessage({
+				endDate: formatDate(newSubscription.endData, 'long'),
+				location: ctx.config.locations[newSubscription.locationId]!.name,
+				protocol: ctx.config.protocols[newSubscription.protocolId]!,
+				subUrl: newSubscription.subUrl,
+			})
+
+			await ctx.editText(message, {
+				reply_markup: new InlineKeyboard()
+					.text('Как подключиться', 'my_subscriptions')
+					.text('Назад', 'main'),
 			})
 
 			ctx.session.cart = {
@@ -166,9 +163,7 @@ export default (bot: BotType) => {
 				periodId: 0,
 				protocolId: 0,
 			}
-
-			return ctx.editText('Подписка активирована', {
-				reply_markup: new InlineKeyboard().text('Мои подписки', 'my_subscriptions'),
-			})
 		})
+	//TODO: Доделать переход на оплату если баланс = 0 и выдача подписки
+	// .callbackQuery(subscriptionPaymentData, async (ctx) => {})
 }

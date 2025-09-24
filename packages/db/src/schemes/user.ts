@@ -23,4 +23,4 @@ export const usersRelations = relations(usersTable, ({ many }) => ({
 	payments: many(paymentsTable),
 }))
 
-export type User = typeof usersTable.$inferSelect
+export type UserSelectParams = typeof usersTable.$inferSelect

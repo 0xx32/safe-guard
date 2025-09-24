@@ -11,7 +11,7 @@ export interface PaymentMethod {
 
 export interface Location {
 	id: number
-	symbol: string
+	code: string
 	name: string
 	icon: string
 	supplementToPrice: number

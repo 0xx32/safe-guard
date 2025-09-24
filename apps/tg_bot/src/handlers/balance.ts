@@ -122,7 +122,9 @@ export default async (bot: BotType) => {
 			await ctx.answerCallbackQuery('Оплачен')
 
 			return ctx.editText(`Баланс успешно пополнен на ${payment.amount} ₽`, {
-				reply_markup: backKeyboard,
+				reply_markup: new InlineKeyboard()
+					.text('Вернуться к оформлению заказа', 'main')
+					.text('Главное меню', 'main'),
 			})
 		})
 		.callbackQuery(paymentCancelData, async (ctx) => {
