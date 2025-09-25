@@ -6,7 +6,7 @@ import { config } from '@/config'
 
 const DATABASE_URL = `postgresql://${config.POSTGRES_USER}:${config.POSTGRES_PASSWORD}@${config.POSTGRES_HOST}:${config.POSTGRES_PORT}/${config.POSTGRES_DB}`
 
-const client = postgres(DATABASE_URL, {
+export const client = postgres(DATABASE_URL, {
 	prepare: false,
 })
 

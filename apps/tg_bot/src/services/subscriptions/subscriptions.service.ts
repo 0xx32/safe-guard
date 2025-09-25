@@ -15,7 +15,7 @@ export class SubscriptionsService {
 	constructor() {}
 
 	async createSubscription(params: createSubscriptionParams) {
-		const lastEndDate = addMonth(new Date(), 1)
+		const lastEndDate = addMonth(new Date(), params.duration)
 
 		const remnawaveResponse = await remnawave.createUser({
 			username: `${params.username}-${generateRandomString(5)}`,

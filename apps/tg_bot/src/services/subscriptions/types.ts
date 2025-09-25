@@ -5,4 +5,5 @@ export interface createSubscriptionParams {
 	locationId: number
 	protocolId: number
 	internalSquadsIds: string[]
+	duration: number
 }

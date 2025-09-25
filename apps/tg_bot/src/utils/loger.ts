@@ -29,6 +29,7 @@ export const loggerInitializer = () =>
 		loggers: [
 			{ category: ['logtape', 'meta'], sinks: [] },
 			{ category: 'bot', lowestLevel: 'debug', sinks: ['console'] },
+			{ category: 'app', lowestLevel: 'debug', sinks: ['console'] },
 			{ category: ['db', 'bot'], lowestLevel: 'debug', sinks: ['console'] },
 		],
 	})

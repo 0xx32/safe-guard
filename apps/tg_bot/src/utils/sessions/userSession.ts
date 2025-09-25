@@ -6,6 +6,7 @@ interface Cart {
 
 export interface UserSession {
 	cart: Cart
+	isWaitingForPayment: boolean
 }
 
 export const initialUserSession = (): UserSession => ({
@@ -14,4 +15,5 @@ export const initialUserSession = (): UserSession => ({
 		periodId: 0,
 		protocolId: 0,
 	},
+	isWaitingForPayment: false,
 })

@@ -59,7 +59,22 @@ export const topupBalanceScene = new Scene('topupBalanceScene')
 
 		await ctx.scene.exit()
 
-		return ctx.editText('Выберите способ оплаты', {
+		if (ctx.is('callback_query')) {
+			await ctx.answerCallbackQuery()
+
+			return ctx.editText('Выберите способ оплаты', {
+				reply_markup: new InlineKeyboard().add(
+					...Object.values(config.paymentMethods).map((x) =>
+						InlineKeyboard.text(
+							x.name,
+							topupBalanceLolzData.pack({ amount: ctx.scene.state.amount })
+						)
+					)
+				),
+			})
+		}
+
+		return ctx.send('Выберите способ оплаты', {
 			reply_markup: new InlineKeyboard().add(
 				...Object.values(config.paymentMethods).map((x) =>
 					InlineKeyboard.text(x.name, topupBalanceLolzData.pack({ amount: ctx.scene.state.amount }))

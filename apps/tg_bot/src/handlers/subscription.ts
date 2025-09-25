@@ -7,6 +7,7 @@ import type { BotType } from '@/bot'
 
 import { db } from '@/db/client'
 import { updateUserBalance } from '@/db/helpers/user'
+import { topupBalanceScene } from '@/scenes'
 import { subscriptionsService } from '@/services/subscriptions'
 import { subscriptionMessage } from '@/shared/messages/subscription'
 
@@ -99,12 +100,13 @@ export default (bot: BotType) => {
 
 		.callbackQuery(orderConfirmationData, async (ctx) => {
 			if (ctx.user?.balance < ctx.queryData.orderAmount) {
-				return ctx.editCaption(`На вашем балансе недостаточно средств`, {
+				return ctx.editText(`На вашем балансе недостаточно средств`, {
 					reply_markup: new InlineKeyboard()
 						.text(
 							'Перейти к оплате',
 							subscriptionPaymentData.pack({ amount: ctx.queryData.orderAmount })
 						)
+						.row()
 						.text('Вернуться в главное меню', 'main'),
 				})
 			}
@@ -143,18 +145,21 @@ export default (bot: BotType) => {
 				telegramId: ctx.from.id,
 				username: ctx.user.telegramUsername,
 				internalSquadsIds,
+				duration: ctx.config.periods[ctx.session.cart.periodId]!.duration,
 			})
 
 			const message = subscriptionMessage({
+				title: 'Ваша подписка активирована 🎉',
 				endDate: formatDate(newSubscription.endData, 'long'),
-				location: ctx.config.locations[newSubscription.locationId]!.name,
+				location: `${ctx.config.locations[newSubscription.locationId]!.icon}${ctx.config.locations[newSubscription.locationId]!.name}`,
 				protocol: ctx.config.protocols[newSubscription.protocolId]!,
 				subUrl: newSubscription.subUrl,
 			})
 
 			await ctx.editText(message, {
 				reply_markup: new InlineKeyboard()
-					.text('Как подключиться', 'my_subscriptions')
+					.url('Как подключиться', newSubscription.subUrl)
+					.row()
 					.text('Назад', 'main'),
 			})
 
@@ -164,6 +169,56 @@ export default (bot: BotType) => {
 				protocolId: 0,
 			}
 		})
-	//TODO: Доделать переход на оплату если баланс = 0 и выдача подписки
-	// .callbackQuery(subscriptionPaymentData, async (ctx) => {})
+		//TODO: Доделать переход на оплату если баланс = 0 и выдача подписки
+		.callbackQuery(subscriptionPaymentData, async (ctx) => {
+			ctx.session.isWaitingForPayment = true
+			return ctx.scene.enter(topupBalanceScene, {
+				amount: ctx.queryData.amount,
+			})
+		})
+		.callbackQuery('back_to_checkout', async (ctx) => {
+			//TODO: Отрефакторить и вынесни переиспользуемую логику в отдельный метод
+			const internalSquads = await db
+				.select({ id: internalSquadsTable.uuid })
+				.from(internalSquadsTable)
+				.where(
+					eq(
+						internalSquadsTable.locationCode,
+						ctx.config.locations[ctx.session.cart.locationId]!.code
+					)
+				)
+
+			const internalSquadsIds = internalSquads.map((squad) => squad.id)
+
+			const newSubscription = await subscriptionsService.createSubscription({
+				locationId: ctx.session.cart.locationId,
+				protocolId: ctx.session.cart.protocolId,
+				userId: ctx.user.id,
+				telegramId: ctx.from.id,
+				username: ctx.user.telegramUsername,
+				internalSquadsIds,
+				duration: ctx.config.periods[ctx.session.cart.periodId]!.duration,
+			})
+
+			const message = subscriptionMessage({
+				title: 'Ваша подписка активирована 🎉',
+				endDate: formatDate(newSubscription.endData, 'long'),
+				location: `${ctx.config.locations[newSubscription.locationId]!.icon}${ctx.config.locations[newSubscription.locationId]!.name}`,
+				protocol: ctx.config.protocols[newSubscription.protocolId]!,
+				subUrl: newSubscription.subUrl,
+			})
+
+			await ctx.editText(message, {
+				reply_markup: new InlineKeyboard()
+					.url('Как подключиться', newSubscription.subUrl)
+					.row()
+					.text('Назад', 'main'),
+			})
+
+			ctx.session.cart = {
+				locationId: 0,
+				periodId: 0,
+				protocolId: 0,
+			}
+		})
 }

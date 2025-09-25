@@ -22,5 +22,6 @@ type Periods = Record<
 	{
 		title: string
 		price: number
+		duration: number
 	}
 >

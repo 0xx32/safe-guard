@@ -121,11 +121,17 @@ export default async (bot: BotType) => {
 
 			await ctx.answerCallbackQuery('Оплачен')
 
-			return ctx.editText(`Баланс успешно пополнен на ${payment.amount} ₽`, {
+			await ctx.editText(`Баланс успешно пополнен на ${payment.amount} ₽`, {
 				reply_markup: new InlineKeyboard()
-					.text('Вернуться к оформлению заказа', 'main')
+					.addIf(ctx.session.isWaitingForPayment, {
+						text: 'Вернуться к оформлению заказа',
+						callback_data: 'back_to_checkout',
+					})
+					.row()
 					.text('Главное меню', 'main'),
 			})
+
+			ctx.session.isWaitingForPayment = false
 		})
 		.callbackQuery(paymentCancelData, async (ctx) => {
 			const payment = await getPaymentById(ctx.queryData.paymentId)

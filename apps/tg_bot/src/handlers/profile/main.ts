@@ -26,9 +26,8 @@ export default (bot: BotType) => {
 				}
 			)
 		})
-		.callbackQuery('topup-balance', async (ctx) => {
+		.callbackQuery('topup_balance', async (ctx) => {
 			ctx.answerCallbackQuery()
-
-			ctx.scene.enter(topupBalanceScene)
+			return ctx.scene.enter(topupBalanceScene)
 		})
 }

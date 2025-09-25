@@ -1,11 +1,12 @@
 import { format as formatDate } from '@formkit/tempo'
 import { subscriptionsTable } from '@repo/db/schemes'
 import { eq } from 'drizzle-orm'
-import { bold, CallbackData, code, format, InlineKeyboard, join } from 'gramio'
+import { CallbackData, InlineKeyboard } from 'gramio'
 
 import type { BotType } from '@/bot'
 
 import { db } from '@/db/client'
+import { subscriptionMessage } from '@/shared/messages/subscription'
 
 const subscriptionShowData = new CallbackData('subscription_show').number('id')
 
@@ -20,7 +21,7 @@ export default (bot: BotType) => {
 				.where(eq(subscriptionsTable.userId, ctx.user!.id))
 
 			if (!subscriptions.length) {
-				return ctx.editText('У вас подписок', {
+				return ctx.editText('У вас нет подписок 😔', {
 					reply_markup: new InlineKeyboard().text('Назад', 'profile'),
 				})
 			}
@@ -55,20 +56,19 @@ export default (bot: BotType) => {
 				})
 			}
 
-			const text = [
-				`Локация:  ${ctx.config.locations[subscription.locationId]?.name}`,
-				`Дата истечения: ${formatDate(subscription.endDate, 'long')}`,
-				`Протокол: ${ctx.config.protocols[subscription.protocolId]}`,
-			]
+			const message = subscriptionMessage({
+				title: `📋Подробности подписки - ${subscription.id}`,
+				endDate: formatDate(subscription.endDate, 'long'),
+				location: `${ctx.config.locations[subscription.locationId]!.icon}${ctx.config.locations[subscription.locationId]!.name}`,
+				protocol: ctx.config.protocols[subscription.protocolId]!,
+				subUrl: subscription.subUrl,
+			})
 
-			await ctx.editText(
-				format`📋 ${bold`Подробности подписки - ${subscription.remnawaveShortId ?? ''}`}\n\n ${join(text, (x) => bold`${x}`, '\n')}
-		\n${bold`Ссылка подключения: ${code`${subscription.subUrl ?? ''}`}`}`,
-				{
-					reply_markup: new InlineKeyboard()
-						.text('✅  ', 'profile')
-						.text('Назад', 'my_subscriptions'),
-				}
-			)
+			await ctx.editText(message, {
+				reply_markup: new InlineKeyboard()
+					.url('Как подключиться', subscription.subUrl)
+					.row()
+					.text('Назад', 'profile'),
+			})
 		})
 }
