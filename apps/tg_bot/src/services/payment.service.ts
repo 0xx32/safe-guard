@@ -1,34 +1,75 @@
 import { getLogger } from '@logtape/logtape'
 import { paymentsTable } from '@repo/db/schemes'
-import { DrizzleError } from 'drizzle-orm'
+
+import type { CreateInvoiceParams as CryptobotCreateInvoiceParams } from '@/external/cryptobot/types'
 
 import { config } from '@/config'
 import { db } from '@/db/client'
+import { CryptoBotService } from '@/external/cryptobot'
 import { LztPayService } from '@/external/lztPay.service'
 
 const logger = getLogger(['app', 'db'])
+
+interface CreatePamentParams {
+	userId: number
+	amount: number
+	method: 'lolz' | 'cryptobot'
+	description: string
+}
 
 export class PaymentService {
 	lztPayService = new LztPayService({
 		apiKey: config.LOLZ_API_KEY,
 		merchantId: config.LOLZ_MERCHANT_ID,
 	})
+	cryptobotService = new CryptoBotService({
+		apiKey: config.CRYPTOBOT_API_KEY,
+		isTest: config.NODE_ENV !== 'production',
+	})
 
 	constructor() {}
 
-	async createLztPayPayment(userId: number, amount: number) {
+	async createPayment({ userId, amount, method, description }: CreatePamentParams) {
 		try {
-			const newPaymentsReturning = await db
+			const paymentResult = await db
 				.insert(paymentsTable)
 				.values({
 					userId,
 					amount,
-					method: 'lolz',
-					comment: `Пополнение баланса пользователя id: ${userId}`,
+					method,
+					comment: description,
 				})
 				.returning()
 
-			const newPayment = newPaymentsReturning.at(0)
+			const payment = paymentResult.at(0)
+
+			if (!payment) {
+				throw new Error('Ошибка при создании Payment в базе данных')
+			}
+
+			logger.info`Создан Payment в базе данных id:${payment.id}`
+
+			return {
+				id: payment.id,
+				url: `https://pay.crypt.bot/invoice/${payment.id}`,
+				amount,
+				payment,
+			}
+		} catch (error) {
+			if (error instanceof Error) {
+				logger.error(error.message)
+			}
+		}
+	}
+
+	async createLztPayPayment(userId: number, amount: number, description: string) {
+		try {
+			const newPayment = await this.createPayment({
+				userId,
+				amount,
+				method: 'lolz',
+				description: description || `Пополнение баланса пользователя id: ${userId}`,
+			})
 
 			if (!newPayment) {
 				throw new Error('Error creating payment')
@@ -56,13 +97,60 @@ export class PaymentService {
 				id: newPayment.id,
 				url: lztResponse.invoice.url,
 				amount: lztResponse.invoice.amount,
+				invoice: lztResponse.invoice,
 			}
 		} catch (error) {
-			if (error instanceof DrizzleError) {
-				logger.error`Ошибка при создании платежа lolzPay для пользователя id:${userId}\n${error}`
-			}
+			logger.error`Ошибка при создании платежа lolzPay для пользователя id:${userId}\n${error}`
 
 			throw new Error(`Error creating payment\n${error}`)
+		}
+	}
+	async createCryptobotPayment(
+		params: {
+			userId: number
+		} & Omit<CryptobotCreateInvoiceParams, 'payload'>
+	) {
+		if (
+			(!params.paid_btn_name && params.paid_btn_url) ||
+			(!params.paid_btn_url && params.paid_btn_name)
+		) {
+			throw new Error('paid_btn_name и paid_btn_url должны быть вместе указаны или оба не указаны')
+		}
+
+		const newPayment = await this.createPayment({
+			userId: params.userId,
+			amount: params.amount,
+			method: 'cryptobot',
+			description: params.description || `Пополнение баланса пользователя id: ${params.userId}`,
+		})
+
+		if (!newPayment) {
+			logger.error`Ошибка при создании Payment в базе данных, params:${params}`
+			return
+		}
+
+		const invoice = await this.cryptobotService.createInvoice({
+			amount: params.amount,
+			currencyType: 'fiat',
+			fiat: 'RUB',
+			payload: JSON.stringify({ userId: params.userId, paymentId: newPayment.id }),
+			description: params.description || `Пополнение баланса пользователя id: ${params.userId}`,
+			paid_btn_name: params.paid_btn_name,
+			paid_btn_url: params.paid_btn_url,
+		})
+
+		if (!invoice) {
+			logger.error`Ошибка при запроса создания invoice CryptoBot, paymentId:${newPayment.id}`
+			return
+		}
+
+		logger.info`Создан invoice CryptoBot paymentId:${newPayment.id} invoiceId:${invoice.invoice_id} amount:${invoice.amount} asset:${invoice.fiat || invoice.asset}`
+
+		return {
+			id: newPayment.id,
+			url: invoice.bot_invoice_url,
+			amount: invoice.amount,
+			invoice,
 		}
 	}
 }

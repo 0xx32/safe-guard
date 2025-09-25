@@ -2,7 +2,6 @@ import { Scene } from '@gramio/scenes'
 import { InlineKeyboard } from 'gramio'
 
 import { getConfig } from '@/db/helpers'
-import { topupBalanceLolzData } from '@/handlers/balance'
 
 interface TopupBalanceSceneParams {
 	amount?: number
@@ -50,7 +49,7 @@ export const topupBalanceScene = new Scene('topupBalanceScene')
 	.step(['message', 'callback_query'], async (ctx) => {
 		const config = await getConfig('main')
 
-		if (!config?.paymentMethods) {
+		if (!config?.paymentMethods || config.paymentMethods.every((x) => !x.enabled)) {
 			await ctx.send('Методы оплаты не найдены', {
 				reply_markup: new InlineKeyboard().text('Вернуться в главное меню', 'main'),
 			})
@@ -65,10 +64,7 @@ export const topupBalanceScene = new Scene('topupBalanceScene')
 			return ctx.editText('Выберите способ оплаты', {
 				reply_markup: new InlineKeyboard().add(
 					...Object.values(config.paymentMethods).map((x) =>
-						InlineKeyboard.text(
-							x.name,
-							topupBalanceLolzData.pack({ amount: ctx.scene.state.amount })
-						)
+						InlineKeyboard.text(x.name, `create_payment:${x.key}:${ctx.scene.state.amount}`)
 					)
 				),
 			})
@@ -77,7 +73,7 @@ export const topupBalanceScene = new Scene('topupBalanceScene')
 		return ctx.send('Выберите способ оплаты', {
 			reply_markup: new InlineKeyboard().add(
 				...Object.values(config.paymentMethods).map((x) =>
-					InlineKeyboard.text(x.name, topupBalanceLolzData.pack({ amount: ctx.scene.state.amount }))
+					InlineKeyboard.text(x.name, `create_payment:${x.key}:${ctx.scene.state.amount}`)
 				)
 			),
 		})

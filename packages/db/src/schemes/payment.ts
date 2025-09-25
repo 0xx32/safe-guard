@@ -5,7 +5,7 @@ import { z } from 'zod'
 import { timestamps } from '../columns.helpers'
 import { usersTable } from './user'
 
-export const paymentMethodEnum = pgEnum('payment_system', ['lolz'])
+export const paymentMethodEnum = pgEnum('payment_system', ['lolz', 'cryptobot'])
 export const paymentSystemsSchema = z.enum(paymentMethodEnum.enumValues)
 
 export const statusPaymentEnum = pgEnum('status_payment', ['paid', 'not_paid', 'canceled'])

@@ -8,6 +8,7 @@ export interface Config {
 export interface PaymentMethod {
 	name: string
 	key: string
+	enabled: boolean
 }
 
 export interface Location {

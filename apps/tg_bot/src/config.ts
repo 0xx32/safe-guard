@@ -28,4 +28,6 @@ export const config = {
 	REDIS_USERNAME: env.get('REDIS_USERNAME').required().asString(),
 
 	SUCCESS_CALLBACK_URL_PAYMENT: env.get('SUCCESS_CALLBACK_URL_PAYMENT').required().asString(),
+
+	CRYPTOBOT_API_KEY: env.get('CRYPTOBOT_API_KEY').required().asString(),
 } as const

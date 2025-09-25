@@ -1,14 +1,20 @@
 import { Hono } from 'hono'
+import { showRoutes } from 'hono/dev'
 
 import { config } from './config'
-import { lolzPay } from './features/webhooks/lolz-pay'
+import { cryptobot, lolzPay } from './features/webhooks'
 
 const app = new Hono().basePath('/api')
 
 app.route('/lolz', lolzPay)
+app.route('/cryptobot', cryptobot)
 
 app.get('/', (c) => {
-	return c.text('Hello Hono!')
+	return c.text('Hello Hono! 2')
+})
+
+showRoutes(app, {
+	verbose: true,
 })
 
 export default {
