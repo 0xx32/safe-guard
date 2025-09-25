@@ -6,9 +6,9 @@ import { Bot } from 'gramio'
 
 import { config } from './config'
 import { createDefaultConfig, getConfig } from './db/helpers'
-import { topupBalanceScene } from './scenes'
-import { storage } from './services/redis'
+import { scenesList } from './scenes'
 import { findOrRegisterUser } from './shared/functions/findOrRegisterUser'
+import { storage } from './utils/redis'
 import { initialUserSession } from './utils/sessions'
 
 const logger = getLogger(['bot'])
@@ -45,7 +45,7 @@ export const bot = new Bot(config.BOT_TOKEN)
 			path: './handlers',
 		})
 	)
-	.extend(scenes([topupBalanceScene]))
+	.extend(scenes(scenesList))
 	.onStart(async ({ info }) => {
 		const config = await getConfig('main')
 
@@ -54,8 +54,6 @@ export const bot = new Bot(config.BOT_TOKEN)
 		}
 
 		logger.info`Bot ${info.username} was started!`
-
-		// console.log(`✨ Bot ${info.username} was started!`)
 	})
 
 export type BotType = typeof bot

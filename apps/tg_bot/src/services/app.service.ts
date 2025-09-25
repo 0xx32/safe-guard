@@ -1,5 +1,3 @@
-import type { Remnawave } from '@repo/remnawave'
-
 import { getLogger } from '@logtape/logtape'
 import { DrizzleError, sql } from 'drizzle-orm'
 import process from 'node:process'
@@ -7,22 +5,20 @@ import process from 'node:process'
 import { bot } from '@/bot'
 import { client, db } from '@/db/client'
 
+import { remnawave } from '../utils/remnawave'
 import { remnawavePanelService } from './remnawavePanel.service'
 
 const logger = getLogger(['app', 'db'])
 
 export class AppService {
-	remnawave: Remnawave
-	constructor(remnawave: Remnawave) {
-		this.remnawave = remnawave
-	}
+	constructor() {}
 
 	async start() {
 		const isDBConnection = await this.checkDBConnection()
 		const remnawavePanelSync = await this.syncRemnawavePanel()
 
 		if (!isDBConnection || !remnawavePanelSync.status) {
-			process.exit(0)
+			return process.exit(0)
 		}
 
 		await bot.start()
@@ -34,7 +30,7 @@ export class AppService {
 
 	private async syncRemnawavePanel() {
 		try {
-			const internalSquadsPromise = this.remnawave.getAllInternalSquads()
+			const internalSquadsPromise = remnawave.getAllInternalSquads()
 
 			const [internalSquads] = await Promise.all([internalSquadsPromise])
 

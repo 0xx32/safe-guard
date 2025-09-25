@@ -22,7 +22,6 @@
 		"@repo/eslint-config": "workspace:*",
 		"@repo/remnawave": "workspace:*",
 		"@verrou/core": "^0.5.1",
-		"axios": "^1.12.2",
 		"drizzle-orm": "^0.44.5",
 		"drizzle-zod": "^0.8.3",
 		"env-var": "^7.5.0",

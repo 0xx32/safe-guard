@@ -7,6 +7,7 @@ const defaultConfig: Config = {
 	periods: {},
 	protocols: {},
 	paymentMethods: [],
+	shopName: 'Winter Shop',
 }
 
 export const configTable = pgTable('config_table', {

@@ -2,19 +2,19 @@ import { addMonth } from '@formkit/tempo'
 import { getLogger } from '@logtape/logtape'
 import { subscriptionsTable } from '@repo/db/schemes'
 
+import type { CreateSubscriptionParams } from '@/types/subscriptions'
+
 import { db } from '@/db/client'
 import { generateRandomString } from '@/utils/helpers/string'
 
-import type { createSubscriptionParams } from './types'
-
-import { remnawave } from '../remnawave.service'
+import { remnawave } from '../utils/remnawave'
 
 const logger = getLogger(['db', 'bot'])
 
 export class SubscriptionsService {
 	constructor() {}
 
-	async createSubscription(params: createSubscriptionParams) {
+	async createSubscription(params: CreateSubscriptionParams) {
 		const lastEndDate = addMonth(new Date(), params.duration)
 
 		const remnawaveResponse = await remnawave.createUser({

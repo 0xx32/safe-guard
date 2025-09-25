@@ -1,8 +1,7 @@
 import { bold, format, italic } from 'gramio'
 
-import { SHOP_NAME } from './global'
-
-export const START_MESSAGE = format`${bold`Добро пожаловать в ${SHOP_NAME}!`}\n\nЭто бот, который поможет вам легко подключиться к VPN с использованием протокола VLESS.`
+export const startMessage = (shopName: string) => format`${bold`Добро пожаловать в ${shopName}!`}\n
+Это бот, который поможет вам легко подключиться к VPN с использованием протокола VLESS.`
 
 export const RULLES_MESSAGE = format`${bold`Пользуясь нашим VPN - вы автоматически соглашаетесь с данными правилами использования:`}\n
 1. Запрещено использовать любые торрент-клиенты.

@@ -1,12 +1,11 @@
 import process from 'node:process'
 
 import { AppService } from './services/app.service.ts'
-import { remnawave } from './services/remnawave.service.ts'
 import { loggerInitializer } from './utils/loger.ts'
 
 const signals = ['SIGINT', 'SIGTERM']
 
-const appService = new AppService(remnawave)
+const appService = new AppService()
 
 async function main() {
 	for (const signal of signals) {

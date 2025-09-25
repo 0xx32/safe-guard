@@ -3,6 +3,7 @@ export interface Config {
 	locations: Record<number, Location>
 	protocols: Record<number, string>
 	periods: Periods
+	shopName: string
 }
 export interface PaymentMethod {
 	name: string

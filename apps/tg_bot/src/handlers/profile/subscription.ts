@@ -28,7 +28,7 @@ export default (bot: BotType) => {
 
 			await ctx.editText('Ваши подписки', {
 				reply_markup: new InlineKeyboard()
-					.columns(1)
+					.columns(2)
 					.add(
 						...subscriptions.map((x) => {
 							const location = ctx.config.locations[x.locationId]

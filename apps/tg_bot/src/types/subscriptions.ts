@@ -1,4 +1,4 @@
-export interface createSubscriptionParams {
+export interface CreateSubscriptionParams {
 	userId: number
 	telegramId: number
 	username: string | null

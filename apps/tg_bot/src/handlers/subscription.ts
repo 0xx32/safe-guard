@@ -8,7 +8,7 @@ import type { BotType } from '@/bot'
 import { db } from '@/db/client'
 import { updateUserBalance } from '@/db/helpers/user'
 import { topupBalanceScene } from '@/scenes'
-import { subscriptionsService } from '@/services/subscriptions'
+import { subscriptionsService } from '@/services/subscriptions.service'
 import { subscriptionMessage } from '@/shared/messages/subscription'
 
 const selectingPeriodData = new CallbackData('selecting_period').number('id')
@@ -41,13 +41,15 @@ export default (bot: BotType) => {
 
 			await ctx.editText('Выберите период', {
 				reply_markup: new InlineKeyboard()
+					.columns(2)
 					.add(
 						...Object.entries(ctx.config.periods).map(([key, value]) => ({
 							text: `${value.title} / ${value.price} ₽`,
 							callback_data: selectingPeriodData.pack({ id: +key }),
 						}))
 					)
-					.columns(2),
+					.row()
+					.text('🔙 Назад', 'buy_subscription'),
 			})
 			await ctx.answerCallbackQuery()
 		})
@@ -55,12 +57,15 @@ export default (bot: BotType) => {
 			ctx.session.cart.periodId = ctx.queryData.id
 
 			await ctx.editText('Выберите протокол', {
-				reply_markup: new InlineKeyboard().columns(2).add(
-					...Object.entries(ctx.config.protocols).map(([key, value]) => ({
-						text: value,
-						callback_data: selectingProtocolData.pack({ id: +key }),
-					}))
-				),
+				reply_markup: new InlineKeyboard()
+					.add(
+						...Object.entries(ctx.config.protocols).map(([key, value]) => ({
+							text: value,
+							callback_data: selectingProtocolData.pack({ id: +key }),
+						}))
+					)
+					.row()
+					.text('🔙 Назад', selectingLocationData.pack({ id: ctx.session.cart.locationId })),
 			})
 			await ctx.answerCallbackQuery()
 		})

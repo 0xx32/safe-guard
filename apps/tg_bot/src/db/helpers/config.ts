@@ -15,6 +15,7 @@ const defaultConfig: Config = {
 	periods: {},
 	protocols: {},
 	paymentMethods: [],
+	shopName: 'My Shop',
 }
 
 export const createDefaultConfig = (key = 'main') =>

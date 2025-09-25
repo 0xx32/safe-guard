@@ -19,7 +19,7 @@ export interface Invoice {
 	currency: string
 }
 
-export interface InvoiceParams {
+export interface CreateInvoiceParams {
 	amount: number
 	currency: string
 	payment_id: string
@@ -32,10 +32,10 @@ export interface InvoiceParams {
 	is_test?: boolean
 }
 
-export interface ResponseCreateInvoice {
+export interface CreateInvoiceResponse {
 	invoice: Invoice
 }
 
-export interface LolzError {
+export interface LztPayError {
 	errors: string[]
 }

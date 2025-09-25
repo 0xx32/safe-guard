@@ -1,7 +1,7 @@
 import type { BotType } from '@/bot'
 
 import { backKeyboard, mainKeyboard } from '@/shared/keyboards'
-import { RULLES_MESSAGE, START_MESSAGE } from '@/utils/constants/messages'
+import { RULLES_MESSAGE, startMessage } from '@/shared/messages/main'
 
 export default (bot: BotType) => {
 	bot.callbackQuery('rules', (ctx) => {
@@ -12,7 +12,7 @@ export default (bot: BotType) => {
 	})
 	bot.callbackQuery('main', (ctx) => {
 		ctx.answerCallbackQuery()
-		ctx.editText(START_MESSAGE, {
+		ctx.editText(startMessage(ctx.config.shopName), {
 			reply_markup: mainKeyboard,
 		})
 	})

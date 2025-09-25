@@ -10,7 +10,7 @@ export const config = {
 	BOT_TOKEN: env.get('BOT_TOKEN').required().asString(),
 
 	LOLZ_API_KEY: env.get('LOLZ_API_KEY').required().asString(),
-	LOLZ_MERCHANT_ID: env.get('LOLZ_MERCHANT_ID').required().asString(),
+	LOLZ_MERCHANT_ID: env.get('LOLZ_MERCHANT_ID').required().asInt(),
 	LOLZ_CALLBACK_URL: env.get('LOLZ_CALLBACK_URL').required().asString(),
 
 	POSTGRES_USER: env.get('POSTGRES_USER').required().asString(),
@@ -26,4 +26,6 @@ export const config = {
 	REDIS_PORT: env.get('REDIS_PORT').required().asInt(),
 	REDIS_PASSWORD: env.get('REDIS_PASSWORD').required().asString(),
 	REDIS_USERNAME: env.get('REDIS_USERNAME').required().asString(),
+
+	SUCCESS_CALLBACK_URL_PAYMENT: env.get('SUCCESS_CALLBACK_URL_PAYMENT').required().asString(),
 } as const
