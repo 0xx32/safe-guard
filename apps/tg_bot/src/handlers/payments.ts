@@ -48,7 +48,7 @@ export default async (bot: BotType) => {
 					})
 				}
 
-				paymentData.id = payment.id
+				paymentData.id = +payment.payment_id
 				paymentData.url = payment.url
 				paymentData.amount = payment.amount
 
