@@ -1,7 +1,6 @@
 interface Cart {
-	locationId: number
+	tariffId: number
 	periodId: number
-	protocolId: number
 }
 
 export interface UserSession {
@@ -11,9 +10,8 @@ export interface UserSession {
 
 export const initialUserSession = (): UserSession => ({
 	cart: {
-		locationId: 0,
+		tariffId: 0,
 		periodId: 0,
-		protocolId: 0,
 	},
 	isWaitingForPayment: false,
 })

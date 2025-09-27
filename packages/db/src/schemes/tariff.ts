@@ -2,7 +2,7 @@ import { relations } from 'drizzle-orm'
 import { integer, pgEnum, pgTable, text } from 'drizzle-orm/pg-core'
 
 import { squadsTable } from './squads'
-import { subscriptionsTable } from './subsription'
+import { subscriptionsTable } from './subscription'
 
 export const tariffTypeEnum = pgEnum('tariff_type', [
 	'ALL_COUNTRY',
@@ -12,22 +12,21 @@ export const tariffTypeEnum = pgEnum('tariff_type', [
 	'EUROPE',
 ])
 
-export const tariffTable = pgTable('tariff_table', {
+export const tariffsTable = pgTable('tariffs_table', {
 	id: integer().primaryKey().generatedAlwaysAsIdentity(),
-	price: integer().notNull().default(0),
+	priceInMonth: integer().notNull().default(100),
 	label: text().notNull(),
 	type: tariffTypeEnum().notNull(),
-	squadId: integer().notNull(),
-	subscriptionDurationInDays: integer().notNull(),
+	squadUuid: text().notNull().unique(),
 })
 
-export const tariffsRelations = relations(tariffTable, ({ many, one }) => ({
+export const tariffsRelations = relations(tariffsTable, ({ many, one }) => ({
 	subscription: many(subscriptionsTable),
 	squad: one(squadsTable, {
-		fields: [tariffTable.squadId],
-		references: [squadsTable.id],
+		fields: [tariffsTable.squadUuid],
+		references: [squadsTable.uuid],
 	}),
 }))
 
-export type Tariff = typeof tariffTable.$inferSelect
-export type TariffInsert = typeof tariffTable.$inferInsert
+export type Tariff = typeof tariffsTable.$inferSelect
+export type TariffInsert = typeof tariffsTable.$inferInsert

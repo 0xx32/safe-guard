@@ -11,8 +11,6 @@ export const getConfig = async (key = 'main') => {
 }
 
 const defaultConfig: Config = {
-	periods: {},
-	protocols: {},
 	paymentMethods: [],
 	shopName: 'My Shop',
 }

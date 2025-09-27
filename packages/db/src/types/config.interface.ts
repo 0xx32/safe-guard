@@ -1,7 +1,5 @@
 export interface Config {
 	paymentMethods: PaymentMethod[]
-	protocols: Record<number, string>
-	periods: Periods
 	shopName: string
 	// trial: Trial
 }
@@ -16,12 +14,3 @@ export interface PaymentMethod {
 // 	deviceLimit?: number
 // 	trafficLimit?: number
 // }
-
-type Periods = Record<
-	number,
-	{
-		title: string
-		price: number
-		duration: number
-	}
->

@@ -3,8 +3,7 @@ import { boolean, integer, pgEnum, pgTable, text, timestamp } from 'drizzle-orm/
 import { z } from 'zod'
 
 import { timestamps } from '../columns.helpers'
-import { subscriptionsToSquadsTable } from './subscriptionsToSquads'
-import { tariffTable } from './tariff'
+import { tariffsTable } from './tariff'
 import { usersTable } from './user'
 
 export const sybscriptionStatusEnum = pgEnum('subscription_status', [
@@ -21,8 +20,6 @@ export const subscriptionsTable = pgTable('subscriptions_table', {
 	userId: integer()
 		.notNull()
 		.references(() => usersTable.id),
-	locationId: integer().notNull(),
-	protocolId: integer().notNull(),
 	status: sybscriptionStatusEnum().default('disabled'),
 	isTrial: boolean().default(false),
 	startDate: timestamp().defaultNow().notNull(),
@@ -31,20 +28,19 @@ export const subscriptionsTable = pgTable('subscriptions_table', {
 	remnawaveUuid: text().notNull(),
 	remnawaveShortId: text().notNull(),
 	internalSquadsIds: text().array().notNull(),
-	tarrifId: integer().notNull(),
+	tariffId: integer().notNull(),
 	...timestamps,
 })
 
 export type Subscription = typeof subscriptionsTable.$inferSelect
 
-export const subscriptionsRelations = relations(subscriptionsTable, ({ one, many }) => ({
+export const subscriptionsRelations = relations(subscriptionsTable, ({ one }) => ({
 	user: one(usersTable, {
 		fields: [subscriptionsTable.userId],
 		references: [usersTable.id],
 	}),
-	squads: many(subscriptionsToSquadsTable),
-	tariff: one(tariffTable, {
-		fields: [subscriptionsTable.tarrifId],
-		references: [tariffTable.id],
+	tariff: one(tariffsTable, {
+		fields: [subscriptionsTable.tariffId],
+		references: [tariffsTable.id],
 	}),
 }))

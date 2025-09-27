@@ -43,17 +43,14 @@ export class SubscriptionsService {
 					subUrl: remnawaveResponse.data.subscriptionUrl,
 					remnawaveShortId: remnawaveResponse.data.shortUuid,
 					remnawaveUuid: remnawaveResponse.data.uuid,
-					locationId: params.locationId,
-					protocolId: params.protocolId,
 					internalSquadsIds: params.internalSquadsIds,
-					tarrifId: 1, // TODO: Добавить выбор тарифа
+					tariffId: 1, // TODO: Добавить выбор тарифа
 				})
 				.returning({
 					id: subscriptionsTable.id,
 					subUrl: subscriptionsTable.subUrl,
 					endData: subscriptionsTable.endDate,
-					locationId: subscriptionsTable.locationId,
-					protocolId: subscriptionsTable.protocolId,
+					uuid: subscriptionsTable.uuid,
 				})
 
 			logger.info`Создана подписка с id: ${newSubscriptionResult[0]!.id}`

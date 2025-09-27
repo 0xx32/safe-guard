@@ -1,8 +1,6 @@
-import { relations } from 'drizzle-orm'
 import { boolean, integer, pgTable, text } from 'drizzle-orm/pg-core'
 
 import { timestamps } from '../columns.helpers'
-import { subscriptionsToSquadsTable } from './subscriptionsToSquads'
 
 export const squadsTable = pgTable('squads_table', {
 	id: integer().primaryKey().generatedAlwaysAsIdentity(),
@@ -13,7 +11,3 @@ export const squadsTable = pgTable('squads_table', {
 	countryCodes: text().array().default([]),
 	...timestamps,
 })
-
-export const squadsRelations = relations(squadsTable, ({ many }) => ({
-	subscriptions: many(subscriptionsToSquadsTable),
-}))

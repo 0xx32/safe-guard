@@ -4,7 +4,7 @@ import { bigint, boolean, integer, pgTable, text } from 'drizzle-orm/pg-core'
 import { timestamps } from '../columns.helpers'
 import { generateUUID } from '../utils'
 import { paymentsTable } from './payment'
-import { subscriptionsTable } from './subsription'
+import { subscriptionsTable } from './subscription'
 
 export const usersTable = pgTable('users_table', {
 	id: integer().primaryKey().generatedAlwaysAsIdentity(),

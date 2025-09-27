@@ -1,6 +1,8 @@
 import { Scene } from '@gramio/scenes'
+import { tariffsTable } from '@repo/db/schemes'
 import { InlineKeyboard } from 'gramio'
 
+import { db } from '@/db/client'
 import { getConfig } from '@/db/helpers'
 
 interface TopupBalanceSceneParams {
@@ -10,12 +12,8 @@ interface TopupBalanceSceneParams {
 export const topupBalanceScene = new Scene('topupBalanceScene')
 	.params<TopupBalanceSceneParams>()
 	.step(['message', 'callback_query'], async (ctx) => {
-		const config = await getConfig('main')
-
-		if (!config) {
-			await ctx.send('Не удалось получить конфигурацию')
-			return ctx.scene.exit()
-		}
+		const tariffs = await db.select({ priceInMonth: tariffsTable.priceInMonth }).from(tariffsTable)
+		const tariffsPrices = tariffs.map((x) => x.priceInMonth)
 
 		if (ctx.scene.params?.amount) return ctx.scene.update({ amount: ctx.scene.params.amount })
 
@@ -23,11 +21,7 @@ export const topupBalanceScene = new Scene('topupBalanceScene')
 			return ctx.editText('Введите сумму или выберите готовую.', {
 				reply_markup: new InlineKeyboard()
 					.columns(2)
-					.add(
-						...Object.values(config.periods).map((x) =>
-							InlineKeyboard.text(`💵 ${x.price}`, x.price.toString())
-						)
-					),
+					.add(...tariffsPrices.map((x) => InlineKeyboard.text(`💵 ${x}`, x.toString()))),
 			})
 		}
 

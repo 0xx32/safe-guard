@@ -1,110 +1,128 @@
 import { format as formatDate } from '@formkit/tempo'
-import { locationsTable, squadsTable, subscriptionsToSquadsTable } from '@repo/db/schemes'
-import { eq, sql } from 'drizzle-orm'
+import { periodsTable } from '@repo/db/schemes'
 import { bold, CallbackData, format, InlineKeyboard, join } from 'gramio'
 
 import type { BotType } from '@/bot'
 
-import { config } from '@/config'
 import { db } from '@/db/client'
-import { getLocationById } from '@/db/helpers/location'
+import { getPeriodById } from '@/db/helpers/period'
+import { getTariffById, getTariffs } from '@/db/helpers/tariff'
 import { updateUserBalance } from '@/db/helpers/user'
 import { topupBalanceScene } from '@/scenes'
 import { subscriptionsService } from '@/services/subscriptions.service'
-import { locationsKeyboard } from '@/shared/keyboards/buy-subscription'
+import { errorKeyboard } from '@/shared/keyboards'
+// import { locationsKeyboard } from '@/shared/keyboards/buy-subscription'
 import { subscriptionMessage } from '@/shared/messages/subscription'
+import { getTotalSubscriptionPrice } from '@/utils/helpers/getTotalSubscriptionPrice'
 
-const selectingPeriodData = new CallbackData('selecting_period').number('id')
-export const selectingLocationData = new CallbackData('selecting_location').number('id')
-const selectingProtocolData = new CallbackData('selecting_protocol').number('id')
+const selectingPeriodData = new CallbackData('selecting_period').number('periodId')
 const subscriptionPaymentData = new CallbackData('subscription_payment').number('amount')
 const orderConfirmationData = new CallbackData('order_confirmation').number('orderAmount')
+const selectingTariff = new CallbackData('selecting_tariff').number('tariffId')
 
 export default (bot: BotType) => {
 	bot
-		//Выбор страны
+		//Выбор тарифа
 		.callbackQuery('buy_subscription', async (ctx) => {
-			const locations = await db.select().from(locationsTable)
-			const activeLocations = locations.filter((location) => location.isActive)
+			const tariffs = await getTariffs()
 
 			await ctx.answerCallbackQuery()
 
-			return ctx.editText('Выберите страну', {
+			if (!tariffs.length) {
+				return ctx.editText('Нет доступных тарифов', {
+					reply_markup: new InlineKeyboard().text('🔙 Назад', 'main'),
+				})
+			}
+
+			return ctx.editText(`Выберите тариф`, {
 				reply_markup: new InlineKeyboard()
-					.combine(locationsKeyboard(activeLocations))
+					.combine(
+						new InlineKeyboard().columns(2).add(
+							...tariffs.map((tariff) => ({
+								text: `${tariff.label} - 1мес / ${tariff.priceInMonth} ₽`,
+								callback_data: selectingTariff.pack({ tariffId: tariff.id }),
+							}))
+						)
+					)
 					.row()
 					.text('🔙 Назад', 'main'),
 			})
 		})
-		//Выбор периода
-		.callbackQuery(selectingLocationData, async (ctx) => {
-			ctx.session.cart.locationId = ctx.queryData.id
+		//Выбор протокола
+		.callbackQuery(selectingTariff, async (ctx) => {
+			ctx.session.cart.tariffId = ctx.queryData.tariffId
 
-			await ctx.editText('Выберите период', {
+			const tariff = await getTariffById(ctx.queryData.tariffId)
+			if (!tariff) {
+				return ctx.editText('Ошибка при получении данных о тарифе', {
+					reply_markup: new InlineKeyboard().text('🔙 Назад', 'main'),
+				})
+			}
+
+			const periods = await db.select().from(periodsTable)
+
+			await ctx.answerCallbackQuery()
+
+			if (!periods.length) {
+				return ctx.editText('Нет доступных периодов', {
+					reply_markup: new InlineKeyboard().text('🔙 Назад', 'main'),
+				})
+			}
+
+			return ctx.editText(`Выберите период подписки`, {
 				reply_markup: new InlineKeyboard()
-					.columns(2)
-					.add(
-						...Object.entries(ctx.config.periods).map(([key, value]) => ({
-							text: `${value.title} / ${value.price} ₽`,
-							callback_data: selectingPeriodData.pack({ id: +key }),
-						}))
+					.combine(
+						new InlineKeyboard().columns(2).add(
+							...periods.map((period) => {
+								const price = getTotalSubscriptionPrice(
+									tariff.priceInMonth,
+									period.durationInDays,
+									period.discount
+								)
+								return {
+									text: `🗓 ${period.durationInDays} дней - ${price} ₽`,
+									callback_data: selectingPeriodData.pack({ periodId: period.id }),
+								}
+							})
+						)
 					)
 					.row()
 					.text('🔙 Назад', 'buy_subscription'),
 			})
-			await ctx.answerCallbackQuery()
-		})
-		//Выбор протокола
-		.callbackQuery(selectingPeriodData, async (ctx) => {
-			ctx.session.cart.periodId = ctx.queryData.id
-
-			await ctx.editText('Выберите протокол', {
-				reply_markup: new InlineKeyboard()
-					.add(
-						...Object.entries(ctx.config.protocols).map(([key, value]) => ({
-							text: value,
-							callback_data: selectingProtocolData.pack({ id: +key }),
-						}))
-					)
-					.row()
-					.text('🔙 Назад', selectingLocationData.pack({ id: ctx.session.cart.locationId })),
-			})
-			await ctx.answerCallbackQuery()
 		})
 		//Подтверждение заказа
-		.callbackQuery(selectingProtocolData, async (ctx) => {
-			ctx.session.cart.protocolId = ctx.queryData.id
+		.callbackQuery(selectingPeriodData, async (ctx) => {
+			ctx.session.cart.periodId = ctx.queryData.periodId
 
-			const { locationId, periodId, protocolId } = ctx.session.cart
+			const cart = ctx.session.cart
 
-			if (!locationId || !periodId || !protocolId) {
+			if (!cart.periodId || !cart.tariffId) {
 				return ctx.editText('Ошибка в оформении заказа', {
 					reply_markup: new InlineKeyboard().text('Вернуться в главное меню', 'main'),
 				})
 			}
 
-			const config = ctx.config
+			const [period, tariff] = await Promise.all([
+				getPeriodById(cart.periodId),
+				getTariffById(cart.tariffId),
+			])
 
-			const selectedLocation = await getLocationById(locationId)
-
-			if (!selectedLocation) {
-				return ctx.editText('Не найдена выбранная страна', {
+			if (!tariff || !period) {
+				return ctx.editText('Ошибка при получении данных о настройке подписки', {
 					reply_markup: new InlineKeyboard().text('Вернуться в главное меню', 'main'),
 				})
 			}
 
-			if (!config.periods[periodId]) {
-				return ctx.editText('Не найден выбранный период', {
-					reply_markup: new InlineKeyboard().text('Вернуться в главное меню', 'main'),
-				})
-			}
-
-			const amount = config.periods[periodId].price + selectedLocation.supplementToPrice
+			const amount = getTotalSubscriptionPrice(
+				tariff.priceInMonth,
+				period.durationInDays,
+				period.discount
+			)
 
 			const text = [
-				`📅 Период: ${config.periods[periodId]!.title}`,
-				`🌎 Страна: ${selectedLocation.name}`,
-				`⚙️ Протокол: ${config.protocols[protocolId]}`,
+				`🌎 Тариф: ${tariff.label}`,
+				`📅 Период: ${period.durationInDays} дней`,
+				`⚙️ Протокол: VLESS`,
 				`💰 Сумма: ${amount} ₽`,
 			]
 
@@ -121,74 +139,69 @@ export default (bot: BotType) => {
 
 		.callbackQuery(orderConfirmationData, async (ctx) => {
 			if (ctx.user?.balance < ctx.queryData.orderAmount) {
-				return ctx.editText(`На вашем балансе недостаточно средств`, {
-					reply_markup: new InlineKeyboard()
-						.text(
-							'Перейти к оплате',
-							subscriptionPaymentData.pack({ amount: ctx.queryData.orderAmount })
-						)
-						.row()
-						.text('Вернуться в главное меню', 'main'),
-				})
+				const paymentAmount = ctx.queryData.orderAmount - ctx.user.balance
+
+				return ctx.editText(
+					`На вашем балансе недостаточно средств 😔\n\nТекущий баланс: ${ctx.user.balance}\nВам нужно пополнить баланс на: ${paymentAmount} ₽`,
+					{
+						reply_markup: new InlineKeyboard()
+							.text(
+								`Пополнить на ${paymentAmount} ₽`,
+								subscriptionPaymentData.pack({ amount: paymentAmount })
+							)
+							.row()
+							.text('Вернуться в главное меню', 'main'),
+					}
+				)
 			}
 
 			const afterBalance = ctx.user.balance - ctx.queryData.orderAmount
 
 			const updateUser = await updateUserBalance(ctx.user.id, afterBalance)
 
-			if (updateUser && updateUser.balance !== afterBalance) {
-				return ctx.editText('Ошибка при оплате, обратитесь в поддержку', {
-					reply_markup: new InlineKeyboard()
-						.text('Вернуться в главное меню', 'main')
-						.url('Поддержка', config.SUPPORT_URL),
-				})
+			if (!updateUser || (updateUser && updateUser?.balance !== afterBalance)) {
+				return ctx.editText(
+					`Ошибка при оплате.\nОбратитесь в поддержку с вашим id: ${ctx.user.uuid}`,
+					{
+						reply_markup: errorKeyboard,
+					}
+				)
 			}
 			await ctx.answerCallbackQuery('Оплата успешно произведена')
 
-			const location = (
-				await db
-					.select({ code: locationsTable.symbol, name: locationsTable.name })
-					.from(locationsTable)
-					.where(eq(locationsTable.id, ctx.session.cart.locationId))
-					.limit(1)
-			)[0]
+			ctx.session.isWaitingForPayment = false
 
-			if (!location) {
-				return ctx.editText('Ошибка при создании подписки, обратитесь в поддержку', {
-					reply_markup: new InlineKeyboard()
-						.text('Вернуться в главное меню', 'main')
-						.url('Поддержка', 'https://t.me/safeguard_ru'),
-				})
+			const [period, tariff] = await Promise.all([
+				getPeriodById(ctx.session.cart.periodId),
+				getTariffById(ctx.session.cart.tariffId),
+			])
+
+			if (!tariff || !period) {
+				return ctx.editText(
+					`Ошибка при получении данных о настройке подписки\n
+					Обратитесь в поддержку с вашим id: ${ctx.user.uuid}`,
+					{
+						reply_markup: errorKeyboard,
+					}
+				)
 			}
-			//Получаем сквады для выбранной страны
-			const internalSquads = await db
-				.select({ id: squadsTable.id, uuid: squadsTable.uuid })
-				.from(squadsTable)
-				.where(sql`${squadsTable.countryCodes} = ${[`{${location.code}}`]}`)
 
 			const newSubscription = await subscriptionsService.createSubscription({
 				userId: ctx.user.id,
-				locationId: ctx.session.cart.locationId,
-				protocolId: ctx.session.cart.protocolId,
 				telegramId: ctx.from.id,
 				username: ctx.user.telegramUsername,
-				internalSquadsIds: internalSquads.map((squad) => squad.uuid),
-				duration: ctx.config.periods[ctx.session.cart.periodId]!.duration,
-			})
-
-			internalSquads.forEach(async (squad) => {
-				await db.insert(subscriptionsToSquadsTable).values({
-					subscriptionId: newSubscription.id,
-					squadId: squad.id,
-				})
+				internalSquadsIds: [tariff.squadUuid],
+				duration: period.durationInDays / 30,
+				tariffId: tariff.id,
 			})
 
 			const message = subscriptionMessage({
 				title: 'Ваша подписка активирована 🎉',
 				endDate: formatDate(newSubscription.endData, 'long'),
-				location: location.name,
-				protocol: ctx.config.protocols[newSubscription.protocolId]!,
+				tariff: tariff.label,
+				protocol: 'VLESS',
 				subUrl: newSubscription.subUrl,
+				uuid: newSubscription.uuid,
 			})
 
 			await ctx.editText(message, {
@@ -199,9 +212,8 @@ export default (bot: BotType) => {
 			})
 
 			ctx.session.cart = {
-				locationId: 0,
 				periodId: 0,
-				protocolId: 0,
+				tariffId: 0,
 			}
 		})
 		.callbackQuery(subscriptionPaymentData, async (ctx) => {
@@ -211,45 +223,51 @@ export default (bot: BotType) => {
 			})
 		})
 		.callbackQuery('back_to_checkout', async (ctx) => {
-			//TODO: Отрефакторить и вынесни переиспользуемую логику в отдельный метод
-			const location = (
-				await db
-					.select({ code: locationsTable.symbol, name: locationsTable.name })
-					.from(locationsTable)
-					.where(eq(locationsTable.id, ctx.session.cart.locationId))
-					.limit(1)
-			)[0]
+			const [period, tariff] = await Promise.all([
+				getPeriodById(ctx.session.cart.periodId),
+				getTariffById(ctx.session.cart.tariffId),
+			])
 
-			if (!location) {
-				return ctx.editText('Ошибка при создании подписки, обратитесь в поддержку', {
-					reply_markup: new InlineKeyboard()
-						.text('Вернуться в главное меню', 'main')
-						.url('Поддержка', 'https://t.me/safeguard_ru'),
-				})
+			if (!tariff || !period) {
+				return ctx.editText(
+					`Ошибка при получении данных о настройке подписки\n
+					Обратитесь в поддержку с вашим id: ${ctx.user.uuid}`,
+					{
+						reply_markup: errorKeyboard,
+					}
+				)
 			}
 
-			//TODO: Отрефакторить и добавить логирование
-			const internalSquads = await db
-				.select({ uuid: squadsTable.uuid })
-				.from(squadsTable)
-				.where(sql`${squadsTable.countryCodes} = ${[`{${location.code}}`]}`)
+			const afterBalance =
+				ctx.user.balance -
+				getTotalSubscriptionPrice(tariff.priceInMonth, period.durationInDays, period.discount)
+			const updateUser = await updateUserBalance(ctx.user.id, afterBalance)
+
+			if (!updateUser || (updateUser && updateUser?.balance !== afterBalance)) {
+				return ctx.editText(
+					`Ошибка при оплате.\nОбратитесь в поддержку с вашим id: ${ctx.user.uuid}`,
+					{
+						reply_markup: errorKeyboard,
+					}
+				)
+			}
 
 			const newSubscription = await subscriptionsService.createSubscription({
-				locationId: ctx.session.cart.locationId,
-				protocolId: ctx.session.cart.protocolId,
 				userId: ctx.user.id,
 				telegramId: ctx.from.id,
 				username: ctx.user.telegramUsername,
-				internalSquadsIds: internalSquads.map((squad) => squad.uuid),
-				duration: ctx.config.periods[ctx.session.cart.periodId]!.duration,
+				internalSquadsIds: [tariff.squadUuid],
+				duration: period.durationInDays / 30,
+				tariffId: tariff.id,
 			})
 
 			const message = subscriptionMessage({
 				title: 'Ваша подписка активирована 🎉',
 				endDate: formatDate(newSubscription.endData, 'long'),
-				location: location.name,
-				protocol: ctx.config.protocols[newSubscription.protocolId]!,
+				tariff: tariff.label,
+				protocol: 'VLESS',
 				subUrl: newSubscription.subUrl,
+				uuid: newSubscription.uuid,
 			})
 
 			await ctx.editText(message, {
@@ -260,9 +278,8 @@ export default (bot: BotType) => {
 			})
 
 			ctx.session.cart = {
-				locationId: 0,
 				periodId: 0,
-				protocolId: 0,
+				tariffId: 0,
 			}
 		})
 	// .callbackQuery('trial_subscription', async (ctx) => {})
