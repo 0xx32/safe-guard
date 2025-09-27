@@ -46,7 +46,7 @@ export class SubscriptionsService {
 					locationId: params.locationId,
 					protocolId: params.protocolId,
 					internalSquadsIds: params.internalSquadsIds,
-					tarrifId: 1 // TODO: Добавить выбор тарифа
+					tarrifId: 1, // TODO: Добавить выбор тарифа
 				})
 				.returning({
 					id: subscriptionsTable.id,

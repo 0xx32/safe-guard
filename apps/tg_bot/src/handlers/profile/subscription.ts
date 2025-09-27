@@ -1,5 +1,5 @@
 import { format as formatDate } from '@formkit/tempo'
-import {  subscriptionsTable,} from '@repo/db/schemes'
+import { subscriptionsTable } from '@repo/db/schemes'
 import { eq } from 'drizzle-orm'
 import { CallbackData, InlineKeyboard } from 'gramio'
 
