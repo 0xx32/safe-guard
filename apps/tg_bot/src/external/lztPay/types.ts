@@ -1,4 +1,8 @@
-export interface Invoice {
+export interface LztPayBaseResponse {
+	invoice: LztPayInvoice
+	errors: string[]
+}
+export interface LztPayInvoice {
 	amount: number
 	payment_id: string
 	merchant_id: number
@@ -19,7 +23,7 @@ export interface Invoice {
 	currency: string
 }
 
-export interface CreateInvoiceParams {
+export interface LztPayCreateInvoiceParams {
 	amount: number
 	currency: string
 	payment_id: string
@@ -32,8 +36,8 @@ export interface CreateInvoiceParams {
 	is_test?: boolean
 }
 
-export interface CreateInvoiceResponse {
-	invoice: Invoice
+export interface LztPayCreateInvoiceResponse {
+	invoice: LztPayInvoice
 }
 
 export interface LztPayError {

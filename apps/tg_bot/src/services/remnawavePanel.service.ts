@@ -1,9 +1,10 @@
 import type { InternalSquad } from '@repo/remnawave'
 
 import { getLogger } from '@logtape/logtape'
-import { internalSquadsTable } from '@repo/db/schemes'
+import { squadsTable } from '@repo/db/schemes'
 
 import { db } from '@/db/client'
+import { remnawave } from '@/utils/remnawave'
 
 const logger = getLogger(['app', 'db'])
 
@@ -13,18 +14,24 @@ export class RemnawavePanelService {
 	async updateInternalSquads(squads: InternalSquad[]) {
 		try {
 			for (const squad of squads) {
-				const locationCode = squad.name.split('_')[1]
-				if (!locationCode) throw new Error('Invalid squad name: Не указан код локации')
+				const res = await remnawave.getInternalSquadAccessibleNodes(squad.uuid)
+
+				if (res.status === 'error') {
+					logger.error`Ошибка при получении доступных узлов для InternalSquad: ${res.error}`
+					continue
+				}
+
+				const countryCodes = res.data.accessibleNodes.map((node) => node.countryCode)
 
 				const squadData = {
 					uuid: squad.uuid,
 					name: squad.name,
 					membersCount: squad.info.membersCount,
-					locationCode,
+					countryCodes,
 				}
 
-				await db.insert(internalSquadsTable).values(squadData).onConflictDoUpdate({
-					target: internalSquadsTable.uuid,
+				await db.insert(squadsTable).values(squadData).onConflictDoUpdate({
+					target: squadsTable.uuid,
 					set: squadData,
 				})
 			}

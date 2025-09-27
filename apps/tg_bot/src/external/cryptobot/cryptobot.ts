@@ -46,9 +46,7 @@ export class CryptoBotService {
 			})
 
 			if (!response.ok) {
-				throw new CryptoBotError(
-					`Ошибка запроса к CryptoBot API: ${response.status} ${response.statusText}`
-				)
+				logger.error`Ошибка запроса к CryptoBot API: ${response.status} ${response.statusText}`
 			}
 
 			const json = (await response.json()) as CryptobotBaseResponse<Data>

@@ -27,3 +27,16 @@ export interface Inbound {
 	port: number | null
 	rawInbound: null
 }
+export interface AccessibleNode {
+	uuid: string
+	nodeName: string
+	countryCode: string
+	configProfileUuid: string
+	configProfileName: string
+	activeInbounds: string[]
+}
+
+export interface InternalSquadAccessibleNodes {
+	squadUuid: string
+	accessibleNodes: AccessibleNode[]
+}

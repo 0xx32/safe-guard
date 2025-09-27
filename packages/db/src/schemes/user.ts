@@ -1,5 +1,5 @@
 import { relations } from 'drizzle-orm'
-import { bigint, integer, pgTable, text } from 'drizzle-orm/pg-core'
+import { bigint, boolean, integer, pgTable, text } from 'drizzle-orm/pg-core'
 
 import { timestamps } from '../columns.helpers'
 import { generateUUID } from '../utils'
@@ -14,6 +14,8 @@ export const usersTable = pgTable('users_table', {
 	firstName: text(),
 	lastName: text(),
 	balance: integer().default(0).notNull(),
+	hasHadPaidSubscription: boolean().default(false),
+	isUsedTrial: boolean().default(false),
 	lang: text().$type<'ru' | 'en'>().default('ru'),
 	...timestamps,
 })
@@ -24,3 +26,4 @@ export const usersRelations = relations(usersTable, ({ many }) => ({
 }))
 
 export type UserSelectParams = typeof usersTable.$inferSelect
+export type User = typeof usersTable.$inferSelect

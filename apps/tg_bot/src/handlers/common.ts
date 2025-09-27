@@ -13,7 +13,7 @@ export default (bot: BotType) => {
 	bot.callbackQuery('main', (ctx) => {
 		ctx.answerCallbackQuery()
 		ctx.editText(startMessage(ctx.config.shopName), {
-			reply_markup: mainKeyboard,
+			reply_markup: mainKeyboard(ctx.user),
 		})
 	})
 }

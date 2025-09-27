@@ -9,6 +9,8 @@ export const config = {
 
 	BOT_TOKEN: env.get('BOT_TOKEN').required().asString(),
 
+	SUPPORT_URL: env.get('SUPPORT_URL').required().asString(),
+
 	LOLZ_API_KEY: env.get('LOLZ_API_KEY').required().asString(),
 	LOLZ_MERCHANT_ID: env.get('LOLZ_MERCHANT_ID').required().asInt(),
 	LOLZ_CALLBACK_URL: env.get('LOLZ_CALLBACK_URL').required().asString(),

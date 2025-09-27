@@ -48,7 +48,7 @@ export default async (bot: BotType) => {
 					})
 				}
 
-				paymentData.id = payment.id
+				paymentData.id = +payment.payment_id
 				paymentData.url = payment.url
 				paymentData.amount = payment.amount
 
@@ -64,7 +64,7 @@ export default async (bot: BotType) => {
 					description: `Пополнение баланса пользователя id: ${ctx.user.id}`,
 					currencyType: 'fiat',
 					fiat: 'RUB',
-					paid_btn_name: 'Вернуться в магазин',
+					paid_btn_name: 'callback',
 					paid_btn_url: 'https://t.me/madnes_vpn_bot',
 				})
 

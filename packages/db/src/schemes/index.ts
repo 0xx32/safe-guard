@@ -1,5 +1,7 @@
 export * from './config'
+export * from './location'
 export * from './payment'
 export * from './squads'
+export * from './subscriptionsToSquads'
 export * from './subsription'
 export * from './user'

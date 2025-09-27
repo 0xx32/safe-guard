@@ -6,7 +6,7 @@ import type { CreateInvoiceParams as CryptobotCreateInvoiceParams } from '@/exte
 import { config } from '@/config'
 import { db } from '@/db/client'
 import { CryptoBotService } from '@/external/cryptobot'
-import { LztPayService } from '@/external/lztPay.service'
+import { LztPayService } from '@/external/lztPay/lztPay'
 
 const logger = getLogger(['app', 'db'])
 
@@ -63,47 +63,38 @@ export class PaymentService {
 	}
 
 	async createLztPayPayment(userId: number, amount: number, description: string) {
-		try {
-			const newPayment = await this.createPayment({
-				userId,
-				amount,
-				method: 'lolz',
-				description: description || `Пополнение баланса пользователя id: ${userId}`,
-			})
+		const newPayment = await this.createPayment({
+			userId,
+			amount,
+			method: 'lolz',
+			description: description || `Пополнение баланса пользователя id: ${userId}`,
+		})
 
-			if (!newPayment) {
-				throw new Error('Error creating payment')
-			}
-
-			const lztResponse = await this.lztPayService.createInvoice({
-				amount,
-				comment: `Пополнение баланса пользователя id: ${userId}`,
-				url_success: config.SUCCESS_CALLBACK_URL_PAYMENT,
-				payment_id: newPayment.id.toString(),
-				merchant_id: config.LOLZ_MERCHANT_ID,
-				is_test: config.NODE_ENV !== 'production',
-				currency: 'RUB',
-				additional_data: JSON.stringify({
-					userId,
-				}),
-				url_callback: config.LOLZ_CALLBACK_URL,
-			})
-
-			if (!lztResponse) {
-				return
-			}
-
-			return {
-				id: newPayment.id,
-				url: lztResponse.invoice.url,
-				amount: lztResponse.invoice.amount,
-				invoice: lztResponse.invoice,
-			}
-		} catch (error) {
-			logger.error`Ошибка при создании платежа lolzPay для пользователя id:${userId}\n${error}`
-
-			throw new Error(`Error creating payment\n${error}`)
+		if (!newPayment) {
+			logger.error`Ошибка при создании Payment в базе данных, userId:${userId} amount:${amount}`
+			return
 		}
+
+		const invoice = await this.lztPayService.createInvoice({
+			amount,
+			comment: `Пополнение баланса пользователя id: ${userId}`,
+			url_success: config.SUCCESS_CALLBACK_URL_PAYMENT,
+			payment_id: newPayment.id.toString(),
+			merchant_id: config.LOLZ_MERCHANT_ID,
+			is_test: config.NODE_ENV !== 'production',
+			currency: 'RUB',
+			additional_data: JSON.stringify({
+				userId,
+			}),
+			url_callback: config.LOLZ_CALLBACK_URL,
+		})
+
+		if (!invoice) {
+			logger.error`Ошибка при запроса создания invoice LztPay, paymentId:${newPayment.id}`
+			return
+		}
+
+		return invoice
 	}
 	async createCryptobotPayment(
 		params: {

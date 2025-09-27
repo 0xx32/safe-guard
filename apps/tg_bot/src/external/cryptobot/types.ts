@@ -31,7 +31,7 @@ export type CreateInvoiceParams =
 			asset?: never
 			description?: string
 			payload: string
-			paid_btn_name?: string
+			paid_btn_name?: 'openBot' | 'callback' | 'viewItem' | 'openChannel'
 			paid_btn_url?: string
 	  }
 	| {
@@ -41,7 +41,7 @@ export type CreateInvoiceParams =
 			fiat?: never
 			description?: string
 			payload: string
-			paid_btn_name?: string
+			paid_btn_name?: 'openBot' | 'callback' | 'viewItem' | 'openChannel'
 			paid_btn_url?: string
 	  }
 

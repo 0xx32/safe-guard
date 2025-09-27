@@ -1,9 +1,9 @@
 export interface Config {
 	paymentMethods: PaymentMethod[]
-	locations: Record<number, Location>
 	protocols: Record<number, string>
 	periods: Periods
 	shopName: string
+	// trial: Trial
 }
 export interface PaymentMethod {
 	name: string
@@ -11,13 +11,11 @@ export interface PaymentMethod {
 	enabled: boolean
 }
 
-export interface Location {
-	id: number
-	code: string
-	name: string
-	icon: string
-	supplementToPrice: number
-}
+// export interface Trial {
+// 	duration: number //in days
+// 	deviceLimit?: number
+// 	trafficLimit?: number
+// }
 
 type Periods = Record<
 	number,

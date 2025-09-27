@@ -6,7 +6,7 @@ import { startMessage } from '@/shared/messages/main'
 export default (bot: BotType) => {
 	bot.command('start', async (ctx) => {
 		return ctx.send(startMessage(ctx.config.shopName), {
-			reply_markup: mainKeyboard,
+			reply_markup: mainKeyboard(ctx.user),
 		})
 	})
 }

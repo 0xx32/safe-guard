@@ -35,6 +35,7 @@ export class SubscriptionsService {
 			const newSubscriptionResult = await db
 				.insert(subscriptionsTable)
 				.values({
+					uuid: crypto.randomUUID(),
 					userId: params.userId,
 					status: 'active',
 					startDate: new Date(remnawaveResponse.data.createdAt),
@@ -45,6 +46,7 @@ export class SubscriptionsService {
 					locationId: params.locationId,
 					protocolId: params.protocolId,
 					internalSquadsIds: params.internalSquadsIds,
+					tarrifId: 1 // TODO: Добавить выбор тарифа
 				})
 				.returning({
 					id: subscriptionsTable.id,

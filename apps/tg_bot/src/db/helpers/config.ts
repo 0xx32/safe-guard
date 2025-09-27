@@ -11,7 +11,6 @@ export const getConfig = async (key = 'main') => {
 }
 
 const defaultConfig: Config = {
-	locations: [],
 	periods: {},
 	protocols: {},
 	paymentMethods: [],

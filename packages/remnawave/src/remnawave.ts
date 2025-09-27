@@ -84,4 +84,10 @@ export class Remnawave {
 	getInternalSquadByUUID(uuid: InternalSquadsTypes.InternalSquad['uuid']) {
 		return this.caller.call<InternalSquadsTypes.InternalSquad>(`internal-squads/${uuid}`, 'GET')
 	}
+	getInternalSquadAccessibleNodes(uuid: InternalSquadsTypes.InternalSquad['uuid']) {
+		return this.caller.call<InternalSquadsTypes.InternalSquadAccessibleNodes>(
+			`internal-squads/${uuid}/accessible-nodes`,
+			'GET'
+		)
+	}
 }
