@@ -1,8 +1,6 @@
 import { Scene } from '@gramio/scenes'
-import { tariffsTable } from '@repo/db/schemes'
 import { InlineKeyboard } from 'gramio'
 
-import { db } from '@/db/client'
 import { getConfig } from '@/db/helpers'
 
 interface TopupBalanceSceneParams {
@@ -12,16 +10,15 @@ interface TopupBalanceSceneParams {
 export const topupBalanceScene = new Scene('topupBalanceScene')
 	.params<TopupBalanceSceneParams>()
 	.step(['message', 'callback_query'], async (ctx) => {
-		const tariffs = await db.select({ priceInMonth: tariffsTable.priceInMonth }).from(tariffsTable)
-		const tariffsPrices = tariffs.map((x) => x.priceInMonth)
-
 		if (ctx.scene.params?.amount) return ctx.scene.update({ amount: ctx.scene.params.amount })
 
+		const amounts = [100, 200, 500, 1000]
+
 		if (ctx.scene.step.firstTime) {
-			return ctx.editText('Введите сумму или выберите готовую.', {
+			return ctx.editText('Введите сумму или выберите готову.', {
 				reply_markup: new InlineKeyboard()
 					.columns(2)
-					.add(...tariffsPrices.map((x) => InlineKeyboard.text(`💵 ${x}`, x.toString()))),
+					.add(...amounts.map((x) => InlineKeyboard.text(`💵 ${x}`, x.toString()))),
 			})
 		}
 
@@ -52,23 +49,31 @@ export const topupBalanceScene = new Scene('topupBalanceScene')
 
 		await ctx.scene.exit()
 
+		const filteredPaymentMethods = config.paymentMethods.filter((x) => x.enabled)
+		const keyboard = new InlineKeyboard()
+			.combine(
+				new InlineKeyboard()
+					.columns(2)
+					.add(
+						...filteredPaymentMethods.map((x) =>
+							InlineKeyboard.text(x.name, `create_payment:${x.key}:${ctx.scene.state.amount}`)
+						)
+					)
+			)
+			.row()
+			.text('Назад', 'profile')
+
 		if (ctx.is('callback_query')) {
 			await ctx.answerCallbackQuery()
 
 			return ctx.editText('Выберите способ оплаты', {
-				reply_markup: new InlineKeyboard().add(
-					...Object.values(config.paymentMethods).map((x) =>
-						InlineKeyboard.text(x.name, `create_payment:${x.key}:${ctx.scene.state.amount}`)
-					)
-				),
+				reply_markup: keyboard,
 			})
 		}
 
+		await ctx.scene.exit()
+
 		return ctx.send('Выберите способ оплаты', {
-			reply_markup: new InlineKeyboard().add(
-				...Object.values(config.paymentMethods).map((x) =>
-					InlineKeyboard.text(x.name, `create_payment:${x.key}:${ctx.scene.state.amount}`)
-				)
-			),
+			reply_markup: keyboard,
 		})
 	})

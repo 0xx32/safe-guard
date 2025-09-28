@@ -33,7 +33,7 @@ export default async (bot: BotType) => {
 				amount: 0,
 			}
 
-			let message: FormattableString = format``
+			let message: FormattableString = format`Ошибка`
 
 			if (paymentMethod === 'lolz') {
 				const payment = await paymentService.createLztPayPayment(
