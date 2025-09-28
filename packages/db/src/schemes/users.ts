@@ -3,8 +3,8 @@ import { bigint, boolean, integer, pgTable, text } from 'drizzle-orm/pg-core'
 
 import { timestamps } from '../columns.helpers'
 import { generateUUID } from '../utils'
-import { paymentsTable } from './payment'
-import { subscriptionsTable } from './subscription'
+import { paymentsTable } from './payments'
+import { subscriptionsTable } from './subscriptions'
 
 export const usersTable = pgTable('users_table', {
 	id: integer().primaryKey().generatedAlwaysAsIdentity(),

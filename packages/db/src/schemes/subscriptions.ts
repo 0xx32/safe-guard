@@ -3,8 +3,8 @@ import { boolean, integer, pgEnum, pgTable, text, timestamp } from 'drizzle-orm/
 import { z } from 'zod'
 
 import { timestamps } from '../columns.helpers'
-import { tariffsTable } from './tariff'
-import { usersTable } from './user'
+import { tariffsTable } from './tariffs'
+import { usersTable } from './users'
 
 export const sybscriptionStatusEnum = pgEnum('subscription_status', [
 	'active',

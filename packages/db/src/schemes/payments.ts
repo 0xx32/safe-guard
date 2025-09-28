@@ -3,7 +3,7 @@ import { integer, pgEnum, pgTable, text, timestamp } from 'drizzle-orm/pg-core'
 import { z } from 'zod'
 
 import { timestamps } from '../columns.helpers'
-import { usersTable } from './user'
+import { usersTable } from './users'
 
 export const paymentMethodEnum = pgEnum('payment_system', ['lolz', 'cryptobot'])
 export const paymentSystemsSchema = z.enum(paymentMethodEnum.enumValues)

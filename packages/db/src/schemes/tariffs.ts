@@ -2,7 +2,7 @@ import { relations } from 'drizzle-orm'
 import { boolean, integer, pgEnum, pgTable, text } from 'drizzle-orm/pg-core'
 
 import { squadsTable } from './squads'
-import { subscriptionsTable } from './subscription'
+import { subscriptionsTable } from './subscriptions'
 
 export const tariffTypeEnum = pgEnum('tariff_type', [
 	'ALL_COUNTRY',
