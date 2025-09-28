@@ -11,6 +11,27 @@ const logger = getLogger(['app', 'db'])
 export class RemnawavePanelService {
 	constructor() {}
 
+	async sync() {
+		const statuses = {
+			internalSquads: false,
+		}
+
+		const internalSquads = await remnawave.getAllInternalSquads()
+
+		if (internalSquads.status === 'error') {
+			logger.error`Синхронизация с Remnawave не удалась`
+			logger.error`Ошибка при получении списка InternalSquads: ${internalSquads.error}`
+
+			return statuses
+		}
+
+		await this.updateInternalSquads(internalSquads.data.internalSquads)
+
+		statuses.internalSquads = true
+
+		return statuses
+	}
+
 	async updateInternalSquads(squads: InternalSquad[]) {
 		try {
 			for (const squad of squads) {
