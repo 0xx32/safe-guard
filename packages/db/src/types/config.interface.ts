@@ -1,7 +1,7 @@
 export interface Config {
 	paymentMethods: PaymentMethod[]
 	shopName: string
-	// trial: Trial
+	trialDurationDays: number
 }
 export interface PaymentMethod {
 	name: string

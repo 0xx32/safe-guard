@@ -37,7 +37,7 @@ export default (bot: BotType) => {
 			await ctx.editText('Ваши подписки', {
 				reply_markup: new InlineKeyboard()
 					.combine(
-						new InlineKeyboard().columns(2).add(
+						new InlineKeyboard().columns(1).add(
 							...subscriptions.map((x) => {
 								return {
 									text: `ID: ${x.id} | тариф: ${x.tariff?.name}`,

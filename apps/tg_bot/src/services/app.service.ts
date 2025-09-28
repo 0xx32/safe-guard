@@ -64,7 +64,7 @@ export class AppService {
 		} catch (error) {
 			client.end()
 
-			logger.info`Ошибка подключения к БД: ${error}`
+			logger.error`Ошибка подключения к БД: ${error}`
 			return false
 		}
 	}

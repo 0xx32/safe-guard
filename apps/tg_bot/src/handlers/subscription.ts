@@ -1,5 +1,6 @@
-import { format as formatDate } from '@formkit/tempo'
-import { periodsTable } from '@repo/db/schemes'
+import { addDay, addMonth, format as formatDate } from '@formkit/tempo'
+import { periodsTable, tariffsTable, usersTable } from '@repo/db/schemes'
+import { eq } from 'drizzle-orm'
 import { bold, CallbackData, format, InlineKeyboard, join } from 'gramio'
 
 import type { BotType } from '@/bot'
@@ -10,7 +11,7 @@ import { getTariffById, getTariffs } from '@/db/helpers/tariff'
 import { updateUserBalance } from '@/db/helpers/user'
 import { topupBalanceScene } from '@/scenes'
 import { subscriptionsService } from '@/services/subscriptions.service'
-import { errorKeyboard } from '@/shared/keyboards'
+import { backKeyboard, errorKeyboard } from '@/shared/keyboards'
 // import { locationsKeyboard } from '@/shared/keyboards/buy-subscription'
 import { subscriptionMessage } from '@/shared/messages/subscription'
 import { getTotalSubscriptionPrice } from '@/utils/helpers/getTotalSubscriptionPrice'
@@ -34,11 +35,13 @@ export default (bot: BotType) => {
 				})
 			}
 
+			const filteredTariffs = tariffs.filter((tariff) => tariff.isActive && !tariff.isPrivate)
+
 			return ctx.editText(`Выберите тариф`, {
 				reply_markup: new InlineKeyboard()
 					.combine(
 						new InlineKeyboard().columns(2).add(
-							...tariffs.map((tariff) => ({
+							...filteredTariffs.map((tariff) => ({
 								text: `${tariff.label} - 1мес / ${tariff.priceInMonth} ₽`,
 								callback_data: selectingTariff.pack({ tariffId: tariff.id }),
 							}))
@@ -191,7 +194,7 @@ export default (bot: BotType) => {
 				telegramId: ctx.from.id,
 				username: ctx.user.telegramUsername,
 				internalSquadsIds: [tariff.squadUuid],
-				duration: period.durationInDays / 30,
+				endDate: addMonth(new Date(), period.durationInDays / 30),
 				tariffId: tariff.id,
 			})
 
@@ -257,7 +260,7 @@ export default (bot: BotType) => {
 				telegramId: ctx.from.id,
 				username: ctx.user.telegramUsername,
 				internalSquadsIds: [tariff.squadUuid],
-				duration: period.durationInDays / 30,
+				endDate: addMonth(new Date(), period.durationInDays / 30),
 				tariffId: tariff.id,
 			})
 
@@ -282,5 +285,58 @@ export default (bot: BotType) => {
 				tariffId: 0,
 			}
 		})
-	// .callbackQuery('trial_subscription', async (ctx) => {})
+		.callbackQuery('trial_subscription', async (ctx) => {
+			if (ctx.user.hasHadPaidSubscription || ctx.user.isUsedTrial) {
+				return ctx.editText('Вам не доступна пробная подписка', {
+					reply_markup: backKeyboard,
+				})
+			}
+
+			const tarrifResult = await db
+				.select()
+				.from(tariffsTable)
+				.where(eq(tariffsTable.isActive, true))
+
+			const tariff = tarrifResult[0]
+
+			if (!tariff) {
+				return ctx.editText('Такой тариф не найден', {
+					reply_markup: backKeyboard,
+				})
+			}
+
+			await ctx.answerCallbackQuery()
+
+			const newSubscription = await subscriptionsService.createSubscription({
+				userId: ctx.user.id,
+				telegramId: ctx.from.id,
+				username: ctx.user.telegramUsername,
+				internalSquadsIds: [tariff.squadUuid],
+				endDate: addDay(new Date(), ctx.config.trialDurationDays),
+				tariffId: tariff.id,
+			})
+
+			const message = subscriptionMessage({
+				title: 'Ваша подписка активирована 🎉',
+				endDate: formatDate(newSubscription.endData, 'long'),
+				tariff: tariff.label,
+				protocol: 'VLESS',
+				subUrl: newSubscription.subUrl,
+				uuid: newSubscription.uuid,
+			})
+
+			await ctx.editText(message, {
+				reply_markup: new InlineKeyboard()
+					.url('Как подключиться', newSubscription.subUrl)
+					.row()
+					.text('Назад', 'main'),
+			})
+
+			await db
+				.update(usersTable)
+				.set({
+					isUsedTrial: true,
+				})
+				.where(eq(usersTable.id, ctx.user.id))
+		})
 }

@@ -3,6 +3,6 @@ export interface CreateSubscriptionParams {
 	telegramId: number
 	username: string | null
 	internalSquadsIds: string[]
-	duration: number
+	endDate: Date
 	tariffId: number
 }

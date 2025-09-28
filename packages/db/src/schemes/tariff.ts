@@ -1,5 +1,5 @@
 import { relations } from 'drizzle-orm'
-import { integer, pgEnum, pgTable, text } from 'drizzle-orm/pg-core'
+import { boolean, integer, pgEnum, pgTable, text } from 'drizzle-orm/pg-core'
 
 import { squadsTable } from './squads'
 import { subscriptionsTable } from './subscription'
@@ -10,6 +10,7 @@ export const tariffTypeEnum = pgEnum('tariff_type', [
 	'YOUTUBE',
 	'RUSSIA',
 	'EUROPE',
+	'TRIAL',
 ])
 
 export const tariffsTable = pgTable('tariffs_table', {
@@ -18,6 +19,8 @@ export const tariffsTable = pgTable('tariffs_table', {
 	label: text().notNull(),
 	type: tariffTypeEnum().notNull(),
 	squadUuid: text().notNull().unique(),
+	isActive: boolean().notNull().default(true),
+	isPrivate: boolean().notNull().default(false),
 })
 
 export const tariffsRelations = relations(tariffsTable, ({ many, one }) => ({

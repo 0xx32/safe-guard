@@ -13,6 +13,7 @@ export const getConfig = async (key = 'main') => {
 const defaultConfig: Config = {
 	paymentMethods: [],
 	shopName: 'My Shop',
+	trialDurationDays: 3,
 }
 
 export const createDefaultConfig = (key = 'main') =>

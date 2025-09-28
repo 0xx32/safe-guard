@@ -1,4 +1,3 @@
-import { addMonth } from '@formkit/tempo'
 import { getLogger } from '@logtape/logtape'
 import { subscriptionsTable } from '@repo/db/schemes'
 
@@ -15,11 +14,9 @@ export class SubscriptionsService {
 	constructor() {}
 
 	async createSubscription(params: CreateSubscriptionParams) {
-		const lastEndDate = addMonth(new Date(), params.duration)
-
 		const remnawaveResponse = await remnawave.createUser({
 			username: `${params.username}-${generateRandomString(5)}`,
-			expireAt: lastEndDate,
+			expireAt: params.endDate,
 			telegramId: params.telegramId,
 			activeInternalSquads: params.internalSquadsIds,
 		})
@@ -39,12 +36,12 @@ export class SubscriptionsService {
 					userId: params.userId,
 					status: 'active',
 					startDate: new Date(remnawaveResponse.data.createdAt),
-					endDate: lastEndDate,
+					endDate: params.endDate,
 					subUrl: remnawaveResponse.data.subscriptionUrl,
 					remnawaveShortId: remnawaveResponse.data.shortUuid,
 					remnawaveUuid: remnawaveResponse.data.uuid,
 					internalSquadsIds: params.internalSquadsIds,
-					tariffId: 1, // TODO: Добавить выбор тарифа
+					tariffId: params.tariffId,
 				})
 				.returning({
 					id: subscriptionsTable.id,
